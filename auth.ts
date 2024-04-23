@@ -1,11 +1,32 @@
 import NextAuth from 'next-auth';
+import { getSession } from 'next-auth/react';
 import Credentials from 'next-auth/providers/credentials';
 import { authConfig } from './auth.config';
+import { NextApiRequest } from 'next';
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import type { User } from '@/app/lib/definitions';
 import bcrypt from 'bcrypt';
- 
+
+// Función para obtener el usuario actualmente autenticado
+async function getCurrentUser(): Promise<User | null> {
+  try {
+    const session = await getSession({});
+    if (session?.user) {
+      // Si hay un usuario en la sesión, devolverlo
+      return session.user as User;
+    } else {
+      // Si no hay sesión o no hay usuario en la sesión, devolver null
+      return null;
+    }
+  } catch (error) {
+    console.error('Failed to get current user:', error);
+    throw new Error('Failed to get current user.');
+  }
+}
+
+export { getCurrentUser };
+
 async function getUser(email: string): Promise<User | undefined> {
   try {
     const user = await sql<User>`SELECT * FROM users WHERE email=${email}`;
