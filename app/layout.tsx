@@ -1,5 +1,5 @@
 import '@/app/ui/global.css';
-import { inter } from '@/app/ui/fonts';
+import { montserrat } from '@/app/ui/fonts';
 import { Metadata } from 'next';
  
 export const metadata: Metadata = {
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     template: '%s | Acorde',
     default: 'Acorde',
   },
-  description: 'The official Next.js Learn Dashboard built with App Router.',
+  description: 'The best site for learning how to play the guitar.',
   metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
 };
 
@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <body className={`${montserrat.className} antialiased`}>{children}</body>
     </html>
   );
 }
