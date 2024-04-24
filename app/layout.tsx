@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     template: '%s | Acorde',
     default: 'Acorde',
   },
-  description: 'The official Next.js Learn Dashboard built with App Router.',
+  description: 'The best site for learning how to play the guitar.',
   metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
 };
 

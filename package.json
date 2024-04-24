@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^5.0.1",
     "@heroicons/react": "^2.0.18",
     "@tailwindcss/forms": "^0.5.7",
     "@types/next": "^9.0.0",
@@ -20,11 +21,15 @@
     "bcrypt": "^5.1.1",
     "clsx": "^2.0.0",
     "graphql": "^16.8.1",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.2",
     "next": "^14.0.2",
     "next-auth": "^5.0.0-beta.16",
     "postcss": "8.4.31",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
     "tailwindcss": "3.3.3",
     "typescript": "5.2.2",
     "use-debounce": "^10.0.0",

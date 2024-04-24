@@ -1,15 +1,13 @@
 import { Metadata } from 'next';
 import { lora } from '@/app/ui/fonts';
 import Image from 'next/image';
-import { getCurrentUser } from '@/auth';
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 export const metadata: Metadata = {
   title: 'Profile',
 };
 
 export default async function Page() {
-  const currentUser = await getCurrentUser();
-
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
@@ -21,7 +19,7 @@ export default async function Page() {
           <Image src="/customers/amy-burns.png" alt="Profile Picture" width={328} height={328} />
         </div>
         {/* Nombre de usuario */}
-        <p className="mt-4 font-bold text-lg">{currentUser?.name}</p>
+        <p className="mt-4 font-bold text-lg">Luis Escobar Reche</p>
         {/* Seguidores 
         <div className="flex items-center mt-2">
           <span className="mr-4">{currentUser?.followers.length}</span>

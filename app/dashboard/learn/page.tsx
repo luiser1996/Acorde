@@ -11,7 +11,6 @@ export default function Page() {
     <div className="flex w-full items-center justify-between">
         <h1 className={`${lora.className} text-2xl`}>Learn</h1>
     </div>
-    
     </div>
     );
 }

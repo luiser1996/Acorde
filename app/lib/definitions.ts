@@ -11,12 +11,12 @@ export type Achievement = {
 export type User = {
   id: string;
   name: string;
-  image_url: string;
+  image_url?: string;
   email: string;
   password: string;
-  followers: User[];
-  following: User[];
-  achievements: Achievement[]; 
+  followers?: User[];
+  following?: User[];
+  achievements?: Achievement[]; 
 };
 
 export type Customer = {
