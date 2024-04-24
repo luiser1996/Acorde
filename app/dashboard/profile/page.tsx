@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { lora } from '@/app/ui/fonts';
 import Image from 'next/image';
-import { auth, currentUser } from "@clerk/nextjs/server";
 
 export const metadata: Metadata = {
   title: 'Profile',
