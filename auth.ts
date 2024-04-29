@@ -8,7 +8,7 @@ import bcrypt from 'bcrypt';
 
 // Función para obtener el usuario actualmente autenticado
 
-async function getUser(email: string): Promise<User | undefined> {
+export async function getUser(email: string): Promise<User | undefined> {
   try {
     const user = await sql<User>`SELECT * FROM users WHERE email=${email}`;
     return user.rows[0];
@@ -17,7 +17,28 @@ async function getUser(email: string): Promise<User | undefined> {
     throw new Error('Failed to fetch user.');
   }
 }
- 
+
+export async function createUser(name: string, email: string, password: string) {
+  const user = await getUser(email);
+  if (!user){
+    // Insert user in database
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const insertedUser = await sql`
+        INSERT INTO users (name, email, password)
+        VALUES (${name}, ${email}, ${hashedPassword})
+        ON CONFLICT (id) DO NOTHING;
+      `;
+      return insertedUser;
+    } catch (error) {
+      // If a database error occurs, return a more specific error.
+      return {
+        message: 'Database Error: Failed to Create User.',
+      };
+    }
+  }
+}
+
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [

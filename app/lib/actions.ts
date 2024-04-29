@@ -4,8 +4,10 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { signIn } from '@/auth';
+import { signIn, createUser } from '@/auth';
 import { AuthError } from 'next-auth';
+import { User } from '@/app/lib/definitions';
+import { UTApi } from "uploadthing/server"
  
 const FormSchema = z.object({
   id: z.string(),
@@ -23,6 +25,26 @@ const FormSchema = z.object({
  
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
  
+const SignUpSchema = z.object({
+  name: z.string().nonempty({
+    message: 'Please enter your name.',
+  }),
+  email: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
+  password: z.string().min(6, {
+    message: 'Password must be at least 6 characters long.',
+  }),
+});
+
+const FormUpdateProfileSchema = z.object({
+  name: z.string().nonempty({
+    message: 'Please enter your name.',
+  }),
+});
+
+const UpdateUser = FormUpdateProfileSchema.omit({});
+
 export type State = {
   errors?: {
     customerId?: string[];
@@ -134,5 +156,122 @@ export async function authenticate(
       }
     }
     throw error;
+  }
+}
+
+export async function newUser(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  // Validate form using Zod
+  const validatedFields = SignUpSchema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to sign up.',
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { name, email, password } = validatedFields.data;
+
+  // Create user and sign in if successful
+  const user = await createUser(name, email, password);
+  if (!user){
+    return 'Error: This email is already in use.';
+  }
+  else{
+    try {
+      await signIn('credentials', formData);
+    } catch (error) {
+      if (error instanceof AuthError) {
+        switch (error.type) {
+          case 'CredentialsSignin':
+            return 'Invalid credentials.';
+          default:
+            return 'Something went wrong.';
+        }
+      }
+      throw error;
+    }
+  }
+}
+
+export async function updateProfile(
+  user: User,
+  image_url: string,
+  prevState: State,
+  formData: FormData,
+) {
+  const validatedFields = UpdateUser.safeParse({
+    name: formData.get('name'),
+  });
+ 
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Update Profile.',
+    };
+  }
+ 
+  const { name } = validatedFields.data;
+  
+  const currentPictureUrl = user.image_url;
+  const urlParts = currentPictureUrl.split('/');
+  const currentPicture = urlParts[urlParts.length - 1];
+
+  if (image_url){
+    try {
+      await sql`
+        UPDATE users
+        SET image_url = ${image_url}
+        WHERE email = ${user.email}
+      `;
+    } catch (error) {
+      return { message: 'Database Error: Failed to Update Profile.' };
+    }
+
+    // Delete old profile picture from server
+    const utapi = new UTApi();
+    await utapi.deleteFiles(currentPicture);
+
+    if (user.name != name){
+      try {
+        await sql`
+          UPDATE users
+          SET name = ${name}
+          WHERE email = ${user.email}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to Update Profile.' };
+      }
+    }
+    revalidatePath('/dashboard/profile');
+    redirect('/dashboard/profile');
+  }
+  else {
+    if (user.name != name){
+      try {
+        await sql`
+          UPDATE users
+          SET name = ${name}
+          WHERE email = ${user.email}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to Update Profile.' };
+      }
+
+      revalidatePath('/dashboard/profile');
+      redirect('/dashboard/profile');
+    }
+    else {
+      return 'Error: No changes to apply';
+    }
   }
 }
