@@ -8,8 +8,13 @@ export const metadata: Metadata = {
 };
  
 export default async function Page() {
-    const { user } = await auth();
-    const currentUser = await getUser(user.email);
+    const session = await auth();
+    if (!session || !session.user) {
+        return <div>Error: No user session found.</div>;
+    }
+    const email = session.user?.email ?? '';
+
+    const currentUser = await getUser(email);
 
     return (
         <main>
