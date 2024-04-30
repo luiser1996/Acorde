@@ -4,7 +4,7 @@ import { User } from '@/app/lib/definitions';
 import { UserCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
-import { updateProfile } from '@/app/lib/actions';
+import { updateProfile, State } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
 import { useState } from 'react';
 import { UploadButton } from "@/app/api/uploadthing/uploadthing";
@@ -16,7 +16,22 @@ export default function EditProfileForm({
   currentUser: User;
 }) {
   const [imageUrl, setImageUrl] = useState('');
-  const updateProfileUser = updateProfile.bind(null, currentUser, imageUrl);
+  const updateProfileUser = async (prevState: State | undefined, formData: FormData): Promise<State | undefined> => {
+    try {
+      const result = await updateProfile(currentUser, imageUrl, prevState, formData);
+      console.log(result);
+      if (result == undefined) {
+        // Si el resultado no es una cadena (indicando un error), devolver el estado previo
+        return prevState;
+      } else {
+        // Si hay un mensaje de error, simplemente devolver el estado previo sin incluir el mensaje de error
+        alert(result);
+      }
+    } catch (error) {
+      // En caso de error, simplemente devolver el estado previo
+      return prevState;
+    }
+  };
   const [errorMessage, dispatch] = useFormState(updateProfileUser, undefined);
  
   return <form action={dispatch}>
@@ -84,7 +99,7 @@ export default function EditProfileForm({
         {errorMessage && (
           <>
             <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-            <p className="text-sm text-red-500">{errorMessage}</p>
+            <p className="text-sm text-red-500">{errorMessage.toString()}</p>
           </>
         )}
       </div>

@@ -162,7 +162,8 @@ export async function authenticate(
 export async function newUser(
   prevState: string | undefined,
   formData: FormData,
-) {
+): Promise<string | undefined> {
+
   // Validate form using Zod
   const validatedFields = SignUpSchema.safeParse({
     name: formData.get('name'),
@@ -172,10 +173,7 @@ export async function newUser(
 
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to sign up.',
-    };
+    return validatedFields.error.errors[0]?.message || 'Missing Fields. Failed to sign up.';
   }
 
   // Prepare data for insertion into the database
@@ -206,7 +204,7 @@ export async function newUser(
 export async function updateProfile(
   user: User,
   image_url: string,
-  prevState: State,
+  prevState: State | undefined,
   formData: FormData,
 ) {
   const validatedFields = UpdateUser.safeParse({
@@ -222,10 +220,11 @@ export async function updateProfile(
  
   const { name } = validatedFields.data;
   
-  const currentPictureUrl = user.image_url;
+  const currentPictureUrlRec = user.image_url;
+  const currentPictureUrl = currentPictureUrlRec || "";
   const urlParts = currentPictureUrl.split('/');
   const currentPicture = urlParts[urlParts.length - 1];
-
+    
   if (image_url){
     try {
       await sql`

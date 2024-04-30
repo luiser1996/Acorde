@@ -3,14 +3,29 @@ import { lora } from '@/app/ui/fonts';
 import Image from 'next/image';
 import { EditProfile } from '@/app/ui/dashboard/buttons';
 import { auth, getUser } from '@/auth';
+import { User } from '@/app/lib/definitions';
 
 export const metadata: Metadata = {
   title: 'Profile',
 };
 
+function generateBlankUser(): User {
+  return {
+    id: 'randomId123',
+    name: 'Blank User',
+    email: 'blank@example.com',
+    password: 'randomPassword',
+  };
+}
+
 export default async function Page() {
-  const { user } = await auth();
-  const currentUser = await getUser(user.email);
+  const session = await auth();
+  const user = session?.user;
+  const email: string = user?.email || '';
+
+  const currentUserInfo = await getUser(email);
+  const blankUser : User = generateBlankUser();
+  const currentUser: User = currentUserInfo || blankUser;
 
   return (
     <div className="w-full">
