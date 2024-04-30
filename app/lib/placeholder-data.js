@@ -7,6 +7,13 @@ const users = [
     email: 'user@nextmail.com',
     password: '123456',
   },
+  {
+    id: '410544b2-4002-4271-9855-fec4b6a6442a',
+    name: 'Luis Escobar Reche',
+    email: 'luiser1996@gmail.com',
+    password: 'Luiser-8915.Acorde',
+    image_url: '/410544b2-4002-4271-9855-fec4b6a6442a.png',
+  },
 ];
 
 const customers = [

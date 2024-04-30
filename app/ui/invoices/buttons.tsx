@@ -36,3 +36,14 @@ export function DeleteInvoice({ id }: { id: string }) {
     </form>
   );
 }
+
+export function EditProfile() {
+  return (
+    <Link
+      href={`/dashboard/profile/edit`}
+      className="rounded-md border p-2 hover:bg-gray-100"
+    >
+      <PencilIcon className="w-5" />
+    </Link>
+  );
+}

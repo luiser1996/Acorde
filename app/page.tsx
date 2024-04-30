@@ -26,6 +26,15 @@ export default function Page() {
           >
             <span className="font-semibold">Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
           </Link>
+          <div className="flex items-center">
+            <p className={`${lora.className}text-gray-800 mr-4 md:text-xl md:leading-normal`}>{`Dont't have a account?`}</p>
+            <Link
+              href="/signup"
+              className="flex items-center gap-5 self-start rounded-lg bg-orange-500 px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-orange-400 md:text-base"
+            >
+              <span className="font-semibold">Sign up</span> <ArrowRightIcon className="w-5 md:w-6" />
+            </Link>
+          </div>
         </div>
         {/* This is a multi-line comment 
         <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
