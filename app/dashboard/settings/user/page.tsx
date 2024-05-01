@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 import { User } from '@/app/lib/definitions';
  
 export const metadata: Metadata = {
-  title: 'Edit Profile',
+  title: 'User Settings',
 };
 
 function generateBlankUser(): User {
@@ -26,16 +26,16 @@ export default async function Page() {
     const blankUser : User = generateBlankUser();
     const currentUser: User = currentUserInfo || blankUser;
 
-    const currentUrl: string = "/dashboard/profile";
+    const currentUrl: string = "/dashboard/settings";
 
     return (
         <main>
         <Breadcrumbs
             breadcrumbs={[
-            { label: 'Profile', href: '/dashboard/profile' },
+            { label: 'Settings', href: '/dashboard/settings' },
             {
-                label: 'Edit Profile',
-                href: `/dashboard/profile/edit`,
+                label: 'User Settings',
+                href: `/dashboard/settings/user`,
                 active: true,
             },
             ]}

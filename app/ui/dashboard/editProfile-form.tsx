@@ -11,24 +11,22 @@ import { UploadButton } from "@/app/api/uploadthing/uploadthing";
 import Image from 'next/image';
 
 export default function EditProfileForm({
-  currentUser
+  currentUser,
+  currentUrl
 }: {
   currentUser: User;
+  currentUrl: string;
 }) {
   const [imageUrl, setImageUrl] = useState('');
   const updateProfileUser = async (prevState: State | undefined, formData: FormData): Promise<State | undefined> => {
     try {
-      const result = await updateProfile(currentUser, imageUrl, prevState, formData);
-      console.log(result);
+      const result = await updateProfile(currentUser, imageUrl, currentUrl, prevState, formData);
       if (result == undefined) {
-        // Si el resultado no es una cadena (indicando un error), devolver el estado previo
         return prevState;
       } else {
-        // Si hay un mensaje de error, simplemente devolver el estado previo sin incluir el mensaje de error
         alert(result);
       }
     } catch (error) {
-      // En caso de error, simplemente devolver el estado previo
       return prevState;
     }
   };
@@ -105,7 +103,7 @@ export default function EditProfileForm({
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link
-          href="/dashboard/profile"
+          href={currentUrl}
           className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
         >
           Cancel
