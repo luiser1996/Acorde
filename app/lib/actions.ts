@@ -4,8 +4,9 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { signIn, createUser } from '@/auth';
+import { signIn, createUser, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
+import bcrypt from 'bcrypt';
 import { User } from '@/app/lib/definitions';
 import { UTApi } from "uploadthing/server"
  
@@ -44,6 +45,24 @@ const FormUpdateProfileSchema = z.object({
 });
 
 const UpdateUser = FormUpdateProfileSchema.omit({});
+
+const ChangePasswordSchema = z.object({
+  currentPassword: z.string().min(6, {
+    message: 'Please enter your current password for safety.',
+  }),
+  newPassword1: z.string().min(6, {
+    message: 'Please enter your new password.',
+  }),
+  newPassword2: z.string().min(6, {
+    message: 'Please repeat your new password.',
+  }),
+});
+
+const SafetySchema = z.object({
+  currentPassword: z.string().min(6, {
+    message: 'Please enter your current password for safety.',
+  }),
+});
 
 export type State = {
   errors?: {
@@ -204,6 +223,7 @@ export async function newUser(
 export async function updateProfile(
   user: User,
   image_url: string,
+  url: string,
   prevState: State | undefined,
   formData: FormData,
 ) {
@@ -252,7 +272,7 @@ export async function updateProfile(
       }
     }
     revalidatePath('/dashboard/profile');
-    redirect('/dashboard/profile');
+    redirect(url);
   }
   else {
     if (user.name != name){
@@ -267,10 +287,214 @@ export async function updateProfile(
       }
 
       revalidatePath('/dashboard/profile');
-      redirect('/dashboard/profile');
+      redirect(url);
     }
     else {
       return 'Error: No changes to apply';
+    }
+  }
+}
+
+export async function changePassword(
+  user: User,
+  prevState: State | undefined,
+  formData: FormData,
+) {
+
+  // Validate form using Zod
+  const validatedFields = ChangePasswordSchema.safeParse({
+    currentPassword: formData.get('currentPassword'),
+    newPassword1: formData.get('newPassword1'),
+    newPassword2: formData.get('newPassword2'),
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return validatedFields.error.errors[0]?.message || 'Missing Fields. Failed to change password.';
+  }
+
+  // Prepare data for insertion into the database
+  const { currentPassword, newPassword1, newPassword2 } = validatedFields.data;
+
+  //Check conditions and change password
+  const currentPasswordsMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!currentPasswordsMatch){
+    return 'Error: Invalid credentials.';
+  }
+  else{
+    if(newPassword1 != newPassword2){
+      return 'Error: New passwords does not match.';
+    }
+    else{
+      const hashedPassword = await bcrypt.hash(newPassword1, 10);
+      try {
+        await sql`
+          UPDATE users
+          SET password = ${hashedPassword}
+          WHERE email = ${user.email}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change password.' };
+      }
+
+      redirect('/dashboard/settings/account');
+    }
+  }
+}
+
+export async function resetProgress(
+  user: User,
+  prevState: State | undefined,
+  formData: FormData,
+) {
+
+  // Validate form using Zod
+  const validatedFields = SafetySchema.safeParse({
+    currentPassword: formData.get('currentPassword'),
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return validatedFields.error.errors[0]?.message || 'Missing Fields. Failed to change password.';
+  }
+
+  // Prepare data for insertion into the database
+  const { currentPassword } = validatedFields.data;
+  const resetProgress = formData.get('resetProgress') === 'on';
+
+  //Check conditions and change password
+  const currentPasswordsMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!currentPasswordsMatch){
+    return 'Error: Invalid credentials.';
+  }
+  else{
+    if(!resetProgress){
+      return 'Error: No changes to apply.';
+    }
+    else{
+      try {
+        await sql`
+          DELETE FROM user_achievements 
+          WHERE user_id = ${user.id}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change password.' };
+      }
+
+      try {
+        await sql`
+          DELETE FROM user_lessons 
+          WHERE user_id = ${user.id}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change password.' };
+      }
+
+      revalidatePath('/dashboard/profile');
+      revalidatePath('/dashboard/learn');
+      redirect('/dashboard/settings/account');
+    }
+  }
+}
+export async function deleteAccount(
+  user: User,
+  prevState: State | undefined,
+  formData: FormData,
+) {
+
+  // Validate form using Zod
+  const validatedFields = SafetySchema.safeParse({
+    currentPassword: formData.get('currentPassword'),
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return validatedFields.error.errors[0]?.message || 'Missing Fields. Failed to change password.';
+  }
+
+  // Prepare data for delete
+  const { currentPassword } = validatedFields.data;
+  const deleteAccount = formData.get('deleteAccount') === 'on';
+
+  // Delete old profile picture from server
+  const currentPictureUrlRec = user.image_url;
+  const currentPictureUrl = currentPictureUrlRec || "";
+  const urlParts = currentPictureUrl.split('/');
+  const currentPicture = urlParts[urlParts.length - 1];
+
+  //Check conditions and change password
+  const currentPasswordsMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!currentPasswordsMatch){
+    return 'Error: Invalid credentials.';
+  }
+  else{
+    if(!deleteAccount){
+      return 'Error: No changes to apply.';
+    }
+    else{
+      const utapi = new UTApi();
+      await utapi.deleteFiles(currentPicture);
+      
+      try {
+        await sql`
+          DELETE FROM user_achievements 
+          WHERE user_id = ${user.id}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change password.' };
+      }
+
+      try {
+        await sql`
+          DELETE FROM user_lessons 
+          WHERE user_id = ${user.id}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change password.' };
+      }
+
+      try {
+        await sql`
+          DELETE FROM user_tabs 
+          WHERE user_id = ${user.id}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change password.' };
+      }
+
+      try {
+        await sql`
+          DELETE FROM tab_chords 
+          WHERE tab_id IN (
+            SELECT id
+            FROM tabs
+            WHERE published = false AND user_id = ${user.id}
+          )
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change password.' };
+      }
+
+      try {
+        await sql`
+          DELETE FROM tabs
+          WHERE published = false
+          AND user_id = ${user.id}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change password.' };
+      }
+
+      try {
+        await sql`
+          DELETE FROM users
+          WHERE id = ${user.id}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change password.' };
+      }
+
+      await signOut();
     }
   }
 }

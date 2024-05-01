@@ -1,11 +1,11 @@
-import Form from '@/app/ui/dashboard/editProfile-form';
+import Form from '@/app/ui/dashboard/resetProgress-form';
 import Breadcrumbs from '@/app/ui/dashboard/breadcrumbs';
 import { auth, getUser } from '@/auth';
 import { Metadata } from 'next';
 import { User } from '@/app/lib/definitions';
  
 export const metadata: Metadata = {
-  title: 'Edit Profile',
+  title: 'Reset Progress',
 };
 
 function generateBlankUser(): User {
@@ -26,21 +26,20 @@ export default async function Page() {
     const blankUser : User = generateBlankUser();
     const currentUser: User = currentUserInfo || blankUser;
 
-    const currentUrl: string = "/dashboard/profile";
-
     return (
         <main>
         <Breadcrumbs
             breadcrumbs={[
-            { label: 'Profile', href: '/dashboard/profile' },
+            { label: 'Settings', href: '/dashboard/settings' },
+            { label: 'Account Settings', href: '/dashboard/settings/account' },
             {
-                label: 'Edit Profile',
-                href: `/dashboard/profile/edit`,
+                label: 'Reset Progress',
+                href: `/dashboard/settings/account/progress`,
                 active: true,
             },
             ]}
         />
-        <Form currentUser={currentUser} currentUrl={currentUrl} />
+        <Form currentUser={currentUser} />
         </main>
     );
 }
