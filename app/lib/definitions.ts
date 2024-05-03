@@ -21,6 +21,13 @@ export type UserAchievements = {
   achievement_id: string;
 };
 
+export type Chords = {
+  id: string;
+  tone: string;
+  semitone: string;
+  image_url: string;
+}
+
 export type Customer = {
   id: string;
   name: string;

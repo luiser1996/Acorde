@@ -7,6 +7,7 @@ import {
   LatestInvoiceRaw,
   User,
   Revenue,
+  Chords,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -237,5 +238,22 @@ export async function getUser(email: string) {
   } catch (error) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
+  }
+}
+
+export async function fetchChords() {
+  noStore();
+  try {
+    const data = await sql<Chords>`
+      SELECT *
+      FROM chords
+      ORDER BY tone ASC
+    `;
+
+    const chords = data.rows;
+    return chords;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all chords.');
   }
 }
