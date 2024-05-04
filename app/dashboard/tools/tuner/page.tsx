@@ -13,12 +13,12 @@ export default function Page() {
           <h1 className={`${lora.className} text-2xl`}>Tuner</h1>
       </div>
       <p className="mt-4 mb-4 text-center">
-        Si no sabes usar este afinador, te recomendamos que completes el{' '}
+        If you don&apos;t how to use this tuner, we recommend you to complete the{' '}
         {/*Aqui falta cambiar la ruta cuando sepa donde esta la leccion con el tutorial de afinar la guitarra */}
         <Link legacyBehavior href="/tutorial">
           <a className="text-blue-500 hover:underline">tutorial</a>
-        </Link>{' '}
-        para afinar tu guitarra.
+        </Link>{''}
+        .
       </p>
       <div className="flex flex-col items-center justify-center h-screen">
         <div className="flex flex-col items-center justify-center h-full">

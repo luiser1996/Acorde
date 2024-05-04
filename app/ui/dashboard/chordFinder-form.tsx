@@ -113,6 +113,13 @@ export default function SelectChordForm({
                   className="hidden md:block"
                   alt={`Acorde: ${selectedChord.tone}${selectedChord.semitone}`}
                 />
+                <Image
+                  src={selectedChord.image_url.replaceAll("#", "%23")}
+                  width={200}
+                  height={200}
+                  className="block md:hidden"
+                  alt={`Acorde: ${selectedChord.tone}${selectedChord.semitone}`}
+                />
               </div>
             )}
         </div>

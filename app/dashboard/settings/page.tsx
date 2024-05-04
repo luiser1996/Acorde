@@ -21,6 +21,7 @@ export default function Page() {
         >
           <UsersIcon className="w-6" />
           <p className="hidden md:block">User settings</p>
+          <p className="block md:hidden">User settings</p>
         </Link>
       </div>
       <div className="mt-4">
@@ -31,6 +32,7 @@ export default function Page() {
         >
           <AtSymbolIcon className="w-6" />
           <p className="hidden md:block">Account settings</p>
+          <p className="block md:hidden">Account settings</p>
         </Link>
       </div>
     </div>

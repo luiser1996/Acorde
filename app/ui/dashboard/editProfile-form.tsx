@@ -84,6 +84,13 @@ export default function EditProfileForm({
             className="hidden md:block"
             alt="Uploaded Image"
             />
+            <Image
+            src={imageUrl}
+            width={100}
+            height={100}
+            className="block md:hidden"
+            alt="Uploaded Image"
+            />
           </div>
           )}
         </div>

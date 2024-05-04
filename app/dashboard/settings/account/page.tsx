@@ -28,6 +28,7 @@ export default async function Page() {
             >
             <LockClosedIcon className="w-6" />
             <p className="hidden md:block">Change password</p>
+            <p className="block md:hidden">Change password</p>
             </Link>
         </div>
         <div className="mt-4">
@@ -38,6 +39,7 @@ export default async function Page() {
             >
             <ScaleIcon className="w-6" />
             <p className="hidden md:block">Reset Progress</p>
+            <p className="block md:hidden">Reset Progress</p>
             </Link>
         </div>
         <div className="mt-4">
@@ -48,6 +50,7 @@ export default async function Page() {
             >
             <TrashIcon className="w-6" />
             <p className="hidden md:block">Delete Account</p>
+            <p className="block md:hidden">Delete Account</p>
             </Link>
         </div>
         </main>
