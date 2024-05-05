@@ -1,23 +1,18 @@
-import AcordeLogo from '@/app/ui/acorde-logo';
+import AcordeLogoMain from '@/app/ui/acorde-logo-main';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { lora } from '@/app/ui/fonts';
+import { nunito } from '@/app/ui/fonts';
 import Image from 'next/image';
 
 export default function Page() {
   return (
     <main className="flex min-h-screen flex-col p-6">
       <div className="flex flex-col h-20 md:flex-row md:items-end md:h-52 bg-orange-500 rounded-lg p-4">
-        <AcordeLogo />
+        <AcordeLogoMain />
       </div>
       <div className="mt-4 flex grow flex-col gap-4 md:flex-row">
         <div className="flex flex-col justify-center gap-6 rounded-lg bg-white px-6 py-10 md:w-2/5 md:px-20">
-          {/*}
-          <div
-            className="h-0 w-0 border-b-[30px] border-l-[20px] border-r-[20px] border-b-black border-l-transparent border-r-transparent"
-          />
-        */}
-          <p className={`${lora.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
+          <p className={`${nunito.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
             <strong>Welcome to Acorde.</strong> Your online destination for learning how to play the guitar.
           </p>
           <Link
@@ -27,7 +22,7 @@ export default function Page() {
             <span className="font-semibold">Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
           </Link>
           <div className="flex items-center">
-            <p className={`${lora.className}text-gray-800 mr-4 md:text-xl md:leading-normal`}>{`Dont't have a account?`}</p>
+            <p className={`${nunito.className}text-gray-800 mr-4 md:text-xl md:leading-normal`}>{`Dont't have a account?`}</p>
             <Link
               href="/signup"
               className="flex items-center gap-5 self-start rounded-lg bg-orange-500 px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-orange-400 md:text-base"

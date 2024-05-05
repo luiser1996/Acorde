@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { lora } from '@/app/ui/fonts';
+import { nunito } from '@/app/ui/fonts';
 import Image from 'next/image';
 import { EditProfile } from '@/app/ui/dashboard/buttons';
 import { auth, getUser } from '@/auth';
@@ -30,7 +30,7 @@ export default async function Page() {
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-        <h1 className={`${lora.className} text-2xl`}>Profile</h1>
+        <h1 className={`${nunito.className} text-2xl`}>Profile</h1>
       </div>
       <div className="mr-4 flex justify-end">
         <EditProfile />
@@ -45,13 +45,13 @@ export default async function Page() {
         )}
         </div>
         {/* Nombre de usuario */}
-        <p className="mt-4 font-bold text-lg">{currentUser.name}</p>
+        <p className="mt-4 font-semibold text-lg">{currentUser.name}</p>
       
         {/* Línea horizontal */}
         <div className="w-1/2 border-t border-gray-300 mt-8"></div>
       </div>
       <div className="flex w-full items-center justify-between">
-        <h1 className={`${lora.className} text-lg`}>Logros</h1>
+        <h1 className={`${nunito.className} text-lg`}>Logros</h1>
       </div>
     </div>
   );

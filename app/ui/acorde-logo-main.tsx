@@ -8,8 +8,8 @@ export default function AcordeLogo() {
     >
       <Image
         src="/logo.png"
-        width={70}
-        height={70}
+        width={120}
+        height={120}
         className="hidden md:block"
         alt="Acorde logo"
       />
@@ -20,7 +20,8 @@ export default function AcordeLogo() {
         className="block md:hidden"
         alt="Acorde logo mobile"
       />
-      <p className="text-[40px] font-semibold">Acorde</p>
+      <p className="hidden md:block text-[70px] font-semibold">Acorde</p>
+      <p className="block md:hidden text-[50px] font-semibold">Acorde</p>
     </div>
   );
 }
