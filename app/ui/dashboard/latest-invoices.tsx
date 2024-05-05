@@ -1,14 +1,14 @@
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import Image from 'next/image';
-import { lora } from '@/app/ui/fonts';
+import { nunito } from '@/app/ui/fonts';
 import { fetchLatestInvoices } from '@/app/lib/data';
  
 export default async function LatestInvoices() { // Remove props
   const latestInvoices = await fetchLatestInvoices();
   return (
     <div className="flex w-full flex-col md:col-span-4">
-      <h2 className={`${lora.className} mb-4 text-xl md:text-2xl`}>
+      <h2 className={`${nunito.className} mb-4 text-xl md:text-2xl`}>
         Latest Invoices
       </h2>
       <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
@@ -44,7 +44,7 @@ export default async function LatestInvoices() { // Remove props
                   </div>
                 </div>
                 <p
-                  className={`${lora.className} truncate text-sm font-medium md:text-base`}
+                  className={`${nunito.className} truncate text-sm font-medium md:text-base`}
                 >
                   {invoice.amount}
                 </p>

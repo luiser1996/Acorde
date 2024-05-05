@@ -1,5 +1,5 @@
 import '@/app/ui/global.css';
-import { montserrat } from '@/app/ui/fonts';
+import { poppins } from '@/app/ui/fonts';
 import { Metadata } from 'next';
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${montserrat.className} antialiased`}>
+      <body className={`${poppins.className} antialiased`}>
       <NextSSRPlugin
           /**
            * The `extractRouterConfig` will extract **only** the route configs

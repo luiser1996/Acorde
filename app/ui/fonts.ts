@@ -1,8 +1,11 @@
-import { Montserrat, Lora } from 'next/font/google';
+import { Poppins, Nunito } from 'next/font/google';
 
-export const montserrat = Montserrat({ subsets: ['latin'] });
+export const poppins = Poppins({ 
+    weight: ['400', '700'],
+    subsets: ['latin'],
+});
 
-export const lora = Lora({
+export const nunito = Nunito({
     weight: ['400', '700'],
     subsets: ['latin'],
 });

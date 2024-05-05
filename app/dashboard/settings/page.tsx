@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { lora } from '@/app/ui/fonts';
+import { nunito } from '@/app/ui/fonts';
 import { UsersIcon, AtSymbolIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
  
@@ -11,7 +11,7 @@ export default function Page() {
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-          <h1 className={`${lora.className} text-2xl`}>Settings</h1>
+          <h1 className={`${nunito.className} text-2xl`}>Settings</h1>
       </div>
       <div className="mt-4">
         <Link 

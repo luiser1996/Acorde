@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { lora } from '@/app/ui/fonts';
+import { nunito } from '@/app/ui/fonts';
 
 export const metadata: Metadata = {
   title: 'Tuner',
@@ -10,7 +10,7 @@ export default function Page() {
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-          <h1 className={`${lora.className} text-2xl`}>Tuner</h1>
+          <h1 className={`${nunito.className} text-2xl`}>Tuner</h1>
       </div>
       <p className="mt-4 mb-4 text-center">
         If you don&apos;t how to use this tuner, we recommend you to complete the{' '}
