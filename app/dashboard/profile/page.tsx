@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { EditProfile } from '@/app/ui/dashboard/buttons';
 import { auth, getUser } from '@/auth';
 import { User } from '@/app/lib/definitions';
+import { fetchUserAchievements } from '@/app/lib/data';
 
 export const metadata: Metadata = {
   title: 'Profile',
@@ -26,6 +27,8 @@ export default async function Page() {
   const currentUserInfo = await getUser(email);
   const blankUser : User = generateBlankUser();
   const currentUser: User = currentUserInfo || blankUser;
+
+  const userAchievements = await fetchUserAchievements(currentUser);
 
   return (
     <div className="w-full">
@@ -50,8 +53,24 @@ export default async function Page() {
         {/* Línea horizontal */}
         <div className="w-1/2 border-t border-gray-300 mt-8"></div>
       </div>
-      <div className="flex w-full items-center justify-between">
+      <div className="flex w-full mt-4 items-center justify-between">
         <h1 className={`${nunito.className} text-lg`}>Logros</h1>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
+        {userAchievements.map((achievement) => (
+          <div key={achievement.id} className="bg-white p-2 rounded-lg flex items-center justify-center flex-col shadow-md">
+            <Image
+              src="/medalla.png"
+              width={120}
+              height={120}
+              alt="Achievement image."
+            />
+            <div className="text-center">
+              <h2 className="text-base font-semibold mt-2">{achievement.name}</h2>
+              <p className="text-xs text-gray-600">{achievement.description}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

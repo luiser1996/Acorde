@@ -8,6 +8,8 @@ import {
   User,
   Revenue,
   Chords,
+  Lessons,
+  Achievement
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -255,5 +257,42 @@ export async function fetchChords() {
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch all chords.');
+  }
+}
+
+export async function fetchLessons() {
+  noStore();
+  try {
+    const data = await sql<Lessons>`
+      SELECT *
+      FROM lessons
+      ORDER BY name ASC
+    `;
+
+    const lessons = data.rows;
+    return lessons;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all lessons.');
+  }
+}
+
+export async function fetchUserAchievements(
+  user: User,
+) {
+  noStore();
+  try {
+    const data = await sql<Achievement>`
+      SELECT a.id, a.name, a.description
+      FROM achievements a
+      JOIN user_achievements ua ON a.id = ua.achievement_id
+      WHERE ua.user_id = ${user.id};
+    `;
+
+    const achievements = data.rows;
+    return achievements;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all achievements.');
   }
 }
