@@ -13,10 +13,9 @@ export default function Page() {
           <h1 className={`${nunito.className} text-2xl`}>Tuner</h1>
       </div>
       <p className="mt-4 mb-4 text-center">
-        If you don&apos;t how to use this tuner, we recommend you to complete the{' '}
-        {/*Aqui falta cambiar la ruta cuando sepa donde esta la leccion con el tutorial de afinar la guitarra */}
-        <Link legacyBehavior href="/tutorial">
-          <a className="text-blue-500 hover:underline">tutorial</a>
+        If you don&apos;t know how to use this tuner, we recommend you to complete the{' '}
+        <Link legacyBehavior href="/dashboard/learn/lessons/lesson-6">
+          <a className="text-blue-500 hover:underline">lesson</a>
         </Link>{''}
         .
       </p>

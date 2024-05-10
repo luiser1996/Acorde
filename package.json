@@ -35,6 +35,7 @@
     "typescript": "5.2.2",
     "uploadthing": "^6.10.0",
     "use-debounce": "^10.0.0",
+    "use-sound": "^4.0.1",
     "zod": "^3.22.2"
   },
   "devDependencies": {
