@@ -9,7 +9,12 @@ Cuenta con herramientas útiles como un buscador de acordes o un afinador. Y por
 Cuenta con un sistema de logros, que a medida que se van completando lecciones van apareciendo en el perfil. Cuenta con ajustes de usuario como cambiar el nombre o foto de perfil.
 Se pueden cambiar tambien parámetros de la cuenta como lo son la contraseña, resetear el progreso o borrar tu cuenta.
 
-El desarrollo de esta aplicación se ha realizado aplicando técnicas de desarrollo de software como analisis de requisitos o SCRUM. 
-Las tecnologías utilizadas en este proyecto son variadas. React y Next.js principalmente, Javascript, Tailwind CSS, SQL y HTML.
+El desarrollo de esta aplicación se ha realizado aplicando técnicas de desarrollo de software como analisis de requisitos o SCRUM.
+Se ha utilizado Gitflow como sistema de control de versiones y trabajo.
+Las tecnologías utilizadas en este proyecto son variadas. React y Next.js principalmente, Typescript, Tailwind CSS, SQL y HTML.
+La base de datos esta siendo hosteada por Vercel al igual que la build de producción.
+
+Se puede acceder a la aplicación de forma online para todo el mundo en el siguiente enlace:
+https://acorde-chi.vercel.app/
 
 Este proyecto forma parte de mi trabajo de fin de grado y esta sujeto a cambios.
