@@ -18,7 +18,7 @@ const links = [
   { name: 'Learn', href: '/dashboard/learn', icon: AcademicCapIcon },
   {
     name: 'Tabs',
-    href: '/dashboard/invoices',
+    href: '/dashboard/tabs',
     icon: MusicalNoteIcon,
   },
   { 
@@ -41,10 +41,6 @@ export default function NavLinks() {
     setShowSubMenu((prevState) => !prevState);
   };
 
-  const handleMouseEnter = () => {
-    setShowSubMenu(true);
-  };
-
   const handleMouseLeave = () => {
     setShowSubMenu(false);
   };
@@ -55,7 +51,7 @@ export default function NavLinks() {
         const LinkIcon = link.icon;
         if (link.submenu) {
           return (
-            <div key={link.name} className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            <div key={link.name} className="relative">
               <div
                 className={clsx(
                   'flex h-[48px] items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-orange-500 md:flex-none md:justify-start md:p-2 md:px-3',
@@ -69,7 +65,7 @@ export default function NavLinks() {
                 <p className="hidden md:block">{link.name}</p>
               </div>
               {showSubMenu && (
-                <div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-md" onMouseLeave={handleMouseLeave}>
+                <div className="absolute top-full left-0 w-max mt-1 bg-white shadow-lg rounded-md" onMouseLeave={handleMouseLeave}>
                   {link.submenu.map((sublink) => (
                     <Link key={sublink.name} href={sublink.href}>
                       <div className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100">{sublink.name}</div>
@@ -85,7 +81,7 @@ export default function NavLinks() {
               key={link.name}
               href={link.href}
               className={clsx(
-                'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-orange-500 md:flex-none md:justify-start md:p-2 md:px-3',
+                'flex h-[48px] items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-orange-500 md:flex-none md:justify-start md:p-2 md:px-3',
                 {
                   'bg-sky-100 text-orange-500': pathname === link.href,
                 },

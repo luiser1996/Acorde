@@ -54,7 +54,7 @@ export default async function Page() {
         <div className="w-1/2 border-t border-gray-300 mt-8"></div>
       </div>
       <div className="flex w-full mt-4 items-center justify-between">
-        <h1 className={`${nunito.className} text-lg`}>Logros</h1>
+        <h1 className={`${nunito.className} text-lg`}>Achievements</h1>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
         {userAchievements.map((achievement) => (

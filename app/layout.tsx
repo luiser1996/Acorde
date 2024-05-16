@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     default: 'Acorde',
   },
   description: 'The best site for learning how to play the guitar.',
-  metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
+  metadataBase: new URL('https://acorde-chi.vercel.app'),
 };
 
 export default function RootLayout({
