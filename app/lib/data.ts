@@ -1,101 +1,18 @@
 import { sql } from '@vercel/postgres';
 import {
-  CustomerField,
-  CustomersTableType,
-  InvoiceForm,
-  InvoicesTable,
-  LatestInvoiceRaw,
+  TabsTable,
+  MyTabsTable,
   User,
-  Revenue,
   Chords,
   Lessons,
-  Achievement
+  Achievement,
+  Tabs
 } from './definitions';
-import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
-export async function fetchRevenue() {
-  // Add noStore() here to prevent the response from being cached.
-  // This is equivalent to in fetch(..., {cache: 'no-store'}).
-  noStore();
-
-  try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
-
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    const data = await sql<Revenue>`SELECT * FROM revenue`;
-
-    // console.log('Data fetch completed after 3 seconds.');
-
-    return data.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch revenue data.');
-  }
-}
-
-export async function fetchLatestInvoices() {
-  noStore();
-  try {
-    const data = await sql<LatestInvoiceRaw>`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      ORDER BY invoices.date DESC
-      LIMIT 5`;
-
-    const latestInvoices = data.rows.map((invoice) => ({
-      ...invoice,
-      amount: formatCurrency(invoice.amount),
-    }));
-    return latestInvoices;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch the latest invoices.');
-  }
-}
-
-export async function fetchCardData() {
-  noStore();
-  try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
-    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-    const invoiceStatusPromise = sql`SELECT
-         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-         FROM invoices`;
-
-    const data = await Promise.all([
-      invoiceCountPromise,
-      customerCountPromise,
-      invoiceStatusPromise,
-    ]);
-
-    const numberOfInvoices = Number(data[0].rows[0].count ?? '0');
-    const numberOfCustomers = Number(data[1].rows[0].count ?? '0');
-    const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? '0');
-    const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? '0');
-
-    return {
-      numberOfCustomers,
-      numberOfInvoices,
-      totalPaidInvoices,
-      totalPendingInvoices,
-    };
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch card data.');
-  }
-}
-
 const ITEMS_PER_PAGE = 6;
-export async function fetchFilteredInvoices(
+
+export async function fetchFilteredTabs(
   query: string,
   currentPage: number,
 ) {
@@ -103,132 +20,278 @@ export async function fetchFilteredInvoices(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const invoices = await sql<InvoicesTable>`
+    const tabs = await sql<TabsTable>`
       SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
+        tabs.id,
+        tabs.name,
+        tabs.artist,
+        tabs.date,
+        COUNT(user_tabs.tab_id) AS favorites_count
+      FROM
+        tabs
+      LEFT JOIN
+        user_tabs ON tabs.id = user_tabs.tab_id
       WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
+        (tabs.name::text ILIKE ${`%${query}%`} OR
+        tabs.artist::text ILIKE ${`%${query}%`} OR
+        tabs.date::text ILIKE ${`%${query}%`})
+        AND (tabs.published = true)
+      GROUP BY
+        tabs.id
+      ORDER BY
+        tabs.date DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
-    return invoices.rows;
+    return tabs.rows;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoices.');
+    throw new Error('Failed to fetch tabs.');
   }
 }
 
-export async function fetchInvoicesPages(query: string) {
+export async function fetchFilteredAdminTabs(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const tabs = await sql<MyTabsTable>`
+      SELECT
+        tabs.id,
+        tabs.name,
+        tabs.artist,
+        tabs.date,
+        COUNT(user_tabs.tab_id) AS favorites_count,
+        tabs.published,
+        tabs.finished
+      FROM
+        tabs
+      LEFT JOIN
+        user_tabs ON tabs.id = user_tabs.tab_id
+      WHERE
+        (tabs.name::text ILIKE ${`%${query}%`} OR
+        tabs.artist::text ILIKE ${`%${query}%`} OR
+        tabs.date::text ILIKE ${`%${query}%`})
+        AND (tabs.finished = true)
+        AND (tabs.published = false)
+      GROUP BY
+        tabs.id
+      ORDER BY
+        tabs.date DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return tabs.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch tabs.');
+  }
+}
+
+export async function fetchMyFilteredTabs(
+  query: string,
+  currentPage: number,
+  userId: string,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const tabs = await sql<MyTabsTable>`
+      SELECT
+        tabs.id,
+        tabs.name,
+        tabs.artist,
+        tabs.user_id,
+        tabs.date,
+        COUNT(user_tabs.tab_id) AS favorites_count,
+        tabs.published,
+        tabs.finished
+      FROM
+        tabs
+      LEFT JOIN
+        user_tabs ON tabs.id = user_tabs.tab_id
+      WHERE
+        (tabs.name::text ILIKE ${`%${query}%`} OR
+        tabs.artist::text ILIKE ${`%${query}%`} OR
+        tabs.date::text ILIKE ${`%${query}%`})
+        AND (tabs.user_id = ${userId} OR user_tabs.user_id = ${userId})
+      GROUP BY
+        tabs.id
+      ORDER BY
+        tabs.date DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return tabs.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch my tabs.');
+  }
+}
+
+export async function userTabCount(id: string) : Promise<number> {
+  noStore();
+
+  try {
+    const data = await sql`
+      SELECT *
+      FROM tabs
+      WHERE user_id=${id}
+    `;
+
+    return data.rowCount;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch data.');
+  }
+}
+
+export async function isTabFinished(id: string) : Promise<boolean> {
+  noStore();
+
+  try {
+    const data = await sql`
+      SELECT finished 
+      FROM tabs
+      WHERE id=${id}
+    `;
+
+    return data.rows[0].finished;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch data.');
+  }
+}
+
+export async function isTabPublic(id: string) : Promise<boolean> {
+  noStore();
+
+  try {
+    const data = await sql`
+      SELECT published 
+      FROM tabs
+      WHERE id=${id}
+    `;
+
+    return data.rows[0].published;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch data.');
+  }
+}
+
+export async function isTabOwner(id: string, user_id: string) : Promise<boolean> {
+  noStore();
+
+  try {
+    const data = await sql`
+      SELECT *
+      FROM tabs
+      WHERE id=${id} AND user_id=${user_id}
+    `;
+    
+    return data.rowCount > 0;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch data.');
+  }
+}
+
+export async function userPublicTabs(user_id: string) {
+  noStore();
+
+  try {
+    const data = await sql<MyTabsTable>`
+      SELECT *
+      FROM tabs
+      WHERE user_id=${user_id} AND published = true
+    `;
+    
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch data.');
+  }
+}
+
+export async function isTabLikedByUser(id: string, user_id: string) : Promise<boolean> {
+  noStore();
+
+  try {
+    const data = await sql`
+      SELECT *
+      FROM user_tabs
+      WHERE tab_id=${id} AND user_id=${user_id}
+    `;
+
+    return data.rowCount > 0;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch data.');
+  }
+}
+
+export async function fetchTabsPages(query: string) {
   noStore();
   try {
     const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
+    FROM tabs
     WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
+      (tabs.name::text ILIKE ${`%${query}%`} OR
+      tabs.artist::text ILIKE ${`%${query}%`})
+      AND tabs.published = true
   `;
 
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of invoices.');
+    throw new Error('Failed to fetch total number of tabs.');
   }
 }
 
-export async function fetchInvoiceById(id: string) {
+export async function fetchMyTabsPages(query: string, userId: string) {
   noStore();
   try {
-    const data = await sql<InvoiceForm>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
+    const count = await sql`SELECT COUNT(*)
+    FROM tabs
+    JOIN users ON tabs.user_id = users.id
+    WHERE
+      (tabs.name::text ILIKE ${`%${query}%`} OR
+      tabs.artist::text ILIKE ${`%${query}%`})
+      AND (tabs.user_id = ${userId} OR
+      tabs.id IN (SELECT tab_id FROM user_tabs WHERE user_id = ${userId}))
     `;
 
-    const invoice = data.rows.map((invoice) => ({
-      ...invoice,
-      // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }));
-
-    return invoice[0];
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoice.');
+    throw new Error('Failed to fetch total number of tabs.');
   }
 }
 
-export async function fetchCustomers() {
+export async function fetchAdminTabsPages(query: string) {
   noStore();
   try {
-    const data = await sql<CustomerField>`
-      SELECT
-        id,
-        name
-      FROM customers
-      ORDER BY name ASC
-    `;
+    const count = await sql`SELECT COUNT(*)
+    FROM tabs
+    WHERE
+      (tabs.name::text ILIKE ${`%${query}%`} OR
+      tabs.artist::text ILIKE ${`%${query}%`})
+      AND tabs.finished = true
+      AND tabs.published = false
+  `;
 
-    const customers = data.rows;
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch all customers.');
-  }
-}
-
-export async function fetchFilteredCustomers(query: string) {
-  noStore();
-  try {
-    const data = await sql<CustomersTableType>`
-		SELECT
-		  customers.id,
-		  customers.name,
-		  customers.email,
-		  customers.image_url,
-		  COUNT(invoices.id) AS total_invoices,
-		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers
-		LEFT JOIN invoices ON customers.id = invoices.customer_id
-		WHERE
-		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
-		GROUP BY customers.id, customers.name, customers.email, customers.image_url
-		ORDER BY customers.name ASC
-	  `;
-
-    const customers = data.rows.map((customer) => ({
-      ...customer,
-      total_pending: formatCurrency(customer.total_pending),
-      total_paid: formatCurrency(customer.total_paid),
-    }));
-
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch customer table.');
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of tabs.');
   }
 }
 
@@ -260,6 +323,67 @@ export async function fetchChords() {
   }
 }
 
+export async function fetchChordId(tone: string, semitone: string): Promise<string> {
+  try {
+    const data = await sql`
+      SELECT id
+      FROM chords
+      WHERE tone = ${tone} AND semitone = ${semitone}
+    `;
+
+    return data.rows[0].id;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch chord ID.');
+  }
+}
+
+export async function fetchTabChords(id: string): Promise<Chords[]> {
+  try {
+    const chordsData = await sql<Chords>`
+      SELECT chords.*
+      FROM chords
+      INNER JOIN tab_chords ON tab_chords.chord_id = chords.id
+      WHERE tab_chords.tab_id = ${id}
+    `;
+
+    return chordsData.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch tab chords.');
+  }
+}
+
+export async function fetchTabId(name: string, artist: string, user_id: string): Promise<string> {
+  try {
+    const data = await sql`
+      SELECT id
+      FROM tabs
+      WHERE name = ${name} AND artist = ${artist} AND user_id = ${user_id}
+    `;
+
+    return data.rows[0].id;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch tab ID.');
+  }
+}
+
+export async function fetchTabById(id: string): Promise<Tabs> {
+  try {
+    const data = await sql`
+      SELECT *
+      FROM tabs
+      WHERE id = ${id}
+    `;
+
+    return data.rows[0] as Tabs;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch tab ID.');
+  }
+}
+
 export async function fetchLessons() {
   noStore();
   try {
@@ -274,6 +398,26 @@ export async function fetchLessons() {
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch all lessons.');
+  }
+}
+
+export async function isLessonCompleted(
+  user: User,
+  lesson_id: string,
+) {
+  try {
+    const data = await sql`
+      SELECT *
+      FROM user_lessons
+      WHERE user_id = ${user.id}
+      AND lesson_id = ${lesson_id}
+    `;
+
+    const completed = data.rows.length > 0;
+    return completed;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch completed lessons.');
   }
 }
 
@@ -294,5 +438,24 @@ export async function fetchUserAchievements(
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch all achievements.');
+  }
+}
+
+export async function fetchUserById(
+  id: string,
+): Promise<User> {
+  noStore();
+  try {
+    const data = await sql<User>`
+      SELECT *
+      FROM users
+      WHERE id = ${id};
+    `;
+
+    const user = data.rows[0];
+    return user;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch user.');
   }
 }

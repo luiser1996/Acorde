@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { fetchLessons } from '@/app/lib/data';
 import { User } from '@/app/lib/definitions';
 import { auth, getUser } from '@/auth';
-import { isLessonCompleted } from '@/app/lib/actions';
+import { isLessonCompleted } from '@/app/lib/data';
 import Breadcrumbs from '@/app/ui/dashboard/breadcrumbs';
 import Link from 'next/link';
  

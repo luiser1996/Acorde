@@ -7,25 +7,28 @@ import { redirect } from 'next/navigation';
 import { signIn, createUser, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcrypt from 'bcrypt';
-import { User } from '@/app/lib/definitions';
+import { ChordsForm, User } from '@/app/lib/definitions';
 import { UTApi } from "uploadthing/server"
-import { fetchLessons } from './data';
- 
-const FormSchema = z.object({
+import { fetchChordId, fetchLessons, fetchTabId, userTabCount, isLessonCompleted, userPublicTabs } from './data';
+
+const TabsSchema = z.object({
   id: z.string(),
-  customerId: z.string({
-    invalid_type_error: 'Please select a customer.',
+  name: z.string().nonempty({
+    message: 'Please enter the name of the song.',
   }),
-  amount: z.coerce
-    .number()
-    .gt(0, { message: 'Please enter an amount greater than $0.' }),
-  status: z.enum(['pending', 'paid'], {
-    invalid_type_error: 'Please select an invoice status.',
+  artist: z.string().nonempty({
+    message: 'Please enter the name of the artist.',
+  }),
+  user_id: z.string(),
+  capo: z.number().nullable().refine(value => value === null || Number.isInteger(value), {
+    message: 'Capo data should be a non-negative integer or null.',
   }),
   date: z.string(),
+  published: z.boolean(),
+  content: z.string(),
 });
- 
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
+
+const CreateTabParse = TabsSchema.omit({ id:true, user_id:true, date:true, published:true });
  
 const SignUpSchema = z.object({
   name: z.string().nonempty({
@@ -73,92 +76,6 @@ export type State = {
   };
   message?: string | null;
 };
- 
-export async function createInvoice(prevState: State, formData: FormData) {
-  // Validate form using Zod
-  const validatedFields = CreateInvoice.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
-  });
- 
-  // If form validation fails, return errors early. Otherwise, continue.
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Create Invoice.',
-    };
-  }
- 
-  // Prepare data for insertion into the database
-  const { customerId, amount, status } = validatedFields.data;
-  const amountInCents = amount * 100;
-  const date = new Date().toISOString().split('T')[0];
- 
-  // Insert data into the database
-  try {
-    await sql`
-      INSERT INTO invoices (customer_id, amount, status, date)
-      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-    `;
-  } catch (error) {
-    // If a database error occurs, return a more specific error.
-    return {
-      message: 'Database Error: Failed to Create Invoice.',
-    };
-  }
- 
-  // Revalidate the cache for the invoices page and redirect the user.
-  revalidatePath('/dashboard/invoices');
-  redirect('/dashboard/invoices');
-}
-
-const UpdateInvoice = FormSchema.omit({ id: true, date: true });
-
-export async function updateInvoice(
-  id: string,
-  prevState: State,
-  formData: FormData,
-) {
-  const validatedFields = UpdateInvoice.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
-  });
- 
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Update Invoice.',
-    };
-  }
- 
-  const { customerId, amount, status } = validatedFields.data;
-  const amountInCents = amount * 100;
- 
-  try {
-    await sql`
-      UPDATE invoices
-      SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-      WHERE id = ${id}
-    `;
-  } catch (error) {
-    return { message: 'Database Error: Failed to Update Invoice.' };
-  }
- 
-  revalidatePath('/dashboard/invoices');
-  redirect('/dashboard/invoices');
-}
-
-export async function deleteInvoice(id: string) {
-  try {
-    await sql`DELETE FROM invoices WHERE id = ${id}`;
-    revalidatePath('/dashboard/invoices');
-    return { message: 'Deleted Invoice.' };
-  } catch (error) {
-    return { message: 'Database Error: Failed to Delete Invoice.' };
-  }
-}
 
 export async function authenticate(
   prevState: string | undefined,
@@ -397,6 +314,7 @@ export async function resetProgress(
     }
   }
 }
+
 export async function deleteAccount(
   user: User,
   prevState: State | undefined,
@@ -425,6 +343,8 @@ export async function deleteAccount(
 
   //Check conditions and change password
   const currentPasswordsMatch = await bcrypt.compare(currentPassword, user.password);
+  const user_public_tabs = await userPublicTabs(user.id);
+
   if (!currentPasswordsMatch){
     return 'Error: Invalid credentials.';
   }
@@ -442,7 +362,7 @@ export async function deleteAccount(
           WHERE user_id = ${user.id}
         `;
       } catch (error) {
-        return { message: 'Database Error: Failed to change password.' };
+        return { message: 'Database Error: Failed.' };
       }
 
       try {
@@ -451,7 +371,7 @@ export async function deleteAccount(
           WHERE user_id = ${user.id}
         `;
       } catch (error) {
-        return { message: 'Database Error: Failed to change password.' };
+        return { message: 'Database Error: Failed.' };
       }
 
       try {
@@ -460,7 +380,7 @@ export async function deleteAccount(
           WHERE user_id = ${user.id}
         `;
       } catch (error) {
-        return { message: 'Database Error: Failed to change password.' };
+        return { message: 'Database Error: Failed.' };
       }
 
       try {
@@ -473,7 +393,7 @@ export async function deleteAccount(
           )
         `;
       } catch (error) {
-        return { message: 'Database Error: Failed to change password.' };
+        return { message: 'Database Error: Failed.' };
       }
 
       try {
@@ -483,7 +403,22 @@ export async function deleteAccount(
           AND user_id = ${user.id}
         `;
       } catch (error) {
-        return { message: 'Database Error: Failed to change password.' };
+        return { message: 'Database Error: Failed.' };
+      }
+
+      if (user_public_tabs){
+        for (const tab of user_public_tabs) {
+          try {
+            await sql`
+              UPDATE tabs
+              SET user_id = '3c533888-79bd-4f57-8169-71428ac6fdaf'
+              WHERE id = ${tab.id}
+            `;
+          } catch (error) {
+            console.error('Database Error:', error);
+            return { message: 'Database Error: Failed.' };
+          }
+        }
       }
 
       try {
@@ -492,31 +427,11 @@ export async function deleteAccount(
           WHERE id = ${user.id}
         `;
       } catch (error) {
-        return { message: 'Database Error: Failed to change password.' };
+        return { message: 'Database Error: Failed.' };
       }
 
       await signOut();
     }
-  }
-}
-
-export async function isLessonCompleted(
-  user: User,
-  lesson_id: string,
-) {
-  try {
-    const data = await sql`
-      SELECT *
-      FROM user_lessons
-      WHERE user_id = ${user.id}
-      AND lesson_id = ${lesson_id}
-    `;
-
-    const completed = data.rows.length > 0;
-    return completed;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch completed lessons.');
   }
 }
 
@@ -901,4 +816,285 @@ export async function completeLesson(
     console.error('Database Error:', err);
     throw new Error('Failed to complete lesson 1.');
   }
+}
+
+export async function createTab(
+  formData: FormData,
+  user: User,
+  selectedChords: ChordsForm[]
+) {
+  // Validate form using Zod
+  const validatedFields = CreateTabParse.safeParse({
+    name: formData.get('name') as string,
+    artist: formData.get('artist') as string,
+    capo: formData.get('capo') !== null && formData.get('capo') !== '' ? parseInt(formData.get('capo') as string) : null,
+    content: formData.get('content') as string,
+  });
+ 
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Tab.',
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { name, artist, capo, content } = validatedFields.data;
+  const date = new Date().toISOString().split('T')[0];
+  const user_tabs = await userTabCount(user.id);
+ 
+  // Insert data into the database
+  try {
+    if(capo) {
+      await sql`
+        INSERT INTO tabs (name, artist, user_id, capo, date, content)
+        VALUES (${name}, ${artist}, ${user.id}, ${capo}, ${date}, ${content})
+      `;
+    }
+    else {
+      await sql`
+        INSERT INTO tabs (name, artist, user_id, date, content)
+        VALUES (${name}, ${artist}, ${user.id}, ${date}, ${content})
+      `;
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      message: 'Database Error: Failed to Create Tab.',
+    };
+  }
+
+  const newTabId = await fetchTabId(name, artist, user.id);
+
+  if (newTabId && selectedChords.length > 0) {
+    for (const chord of selectedChords) {
+      const chordId = await fetchChordId(chord.tone, chord.semitone);
+      
+      try {
+        await sql`
+          INSERT INTO tab_chords (tab_id, chord_id)
+          VALUES (${newTabId}, ${chordId})
+        `;
+      } catch (error) {
+        console.log(error);
+        return {
+          message: 'Database Error: Failed to Create Tab Chords.',
+        };
+      }
+    }
+  }
+
+  if (newTabId && (user_tabs > 0)){
+    completeLesson(user, 'c71d619a-dbe0-4cef-b992-0fda31ad267b');
+    getAchievements(user);
+  }
+ 
+  revalidatePath('/dashboard/tabs');
+  revalidatePath('/dashboard/tabs/my-tabs');
+  redirect(`/dashboard/tabs/${newTabId}`);
+}
+
+export async function updateTab(
+  formData: FormData,
+  id: string,
+  selectedChords: ChordsForm[]
+) {
+  // Validate form using Zod
+  const validatedFields = CreateTabParse.safeParse({
+    name: formData.get('name') as string,
+    artist: formData.get('artist') as string,
+    capo: formData.get('capo') !== null && formData.get('capo') !== '' ? parseInt(formData.get('capo') as string) : null,
+    content: formData.get('content') as string,
+  });
+ 
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Update Tab.',
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { name, artist, capo, content } = validatedFields.data;
+  const date = new Date().toISOString().split('T')[0];
+ 
+  // Insert data into the database
+  try {
+    if (capo) {
+      await sql`
+        UPDATE tabs
+        SET name = ${name}, artist = ${artist}, capo = ${capo}, date = ${date}, content = ${content}
+        WHERE id = ${id}
+      `;
+    }
+    else {
+      await sql`
+        UPDATE tabs
+        SET name = ${name}, artist = ${artist}, capo = null, date = ${date}, content = ${content}
+        WHERE id = ${id}
+      `;
+    }
+
+    if (selectedChords.length > 0) {
+      try {
+        await sql`
+          DELETE FROM tab_chords
+          WHERE tab_id=${id}
+        `;
+      } catch(error){
+        console.log(error);
+        return {
+          message: 'Database Error: Failed to Edit Tab.',
+        };
+      }
+
+      for (const chord of selectedChords) {
+        const chordId = await fetchChordId(chord.tone, chord.semitone);
+        
+        try {
+          await sql`
+            INSERT INTO tab_chords (tab_id, chord_id)
+            VALUES (${id}, ${chordId})
+          `;
+        } catch (error) {
+          console.log(error);
+          return {
+            message: 'Database Error: Failed to Update Tab Chords.',
+          };
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      message: 'Database Error: Failed to Update Tab.',
+    };
+  }
+ 
+  revalidatePath(`/dashboard/tabs/${id}`);
+  revalidatePath('/dashboard/tabs')
+  revalidatePath('/dashboard/tabs/my-tabs');
+  redirect(`/dashboard/tabs/${id}`);
+}
+
+export async function deleteTab(id: string) {
+  try {
+    await sql`
+      DELETE FROM tab_chords 
+      WHERE tab_id = ${id}
+    `;
+  } catch (error) {
+    return { message: 'Database Error: Failed.' };
+  }
+
+  try {
+    await sql`
+      DELETE FROM tabs 
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return { message: 'Database Error: Failed to Delete Tab.' };
+  }
+
+  revalidatePath('/dashboard/tabs');
+  revalidatePath('/dashboard/tabs/my-tabs');
+  redirect('/dashboard/tabs/my-tabs');
+}
+
+export async function likeTab(id: string, user_id: string) {
+  try {
+    await sql`
+      INSERT INTO user_tabs (user_id, tab_id)
+      VALUES (${user_id}, ${id})
+    `;
+  } catch (error) {
+    return { message: 'Database Error: Failed.' };
+  }
+
+  revalidatePath('/dashboard/tabs/my-tabs');
+  revalidatePath(`/dashboard/tabs/${id}`);
+}
+
+export async function unlikeTab(id: string, user_id: string) {
+  try {
+    await sql`
+      DELETE FROM user_tabs 
+      WHERE tab_id = ${id} AND user_id = ${user_id}
+    `;
+  } catch (error) {
+    return { message: 'Database Error: Failed.' };
+  }
+
+  revalidatePath('/dashboard/tabs/my-tabs');
+  revalidatePath(`/dashboard/tabs/${id}`);
+}
+
+export async function publishTab(id: string) {
+  try {
+    await sql`
+      UPDATE tabs
+      SET finished = true
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return { message: 'Database Error: Failed.' };
+  }
+
+  revalidatePath('/dashboard/tabs');
+  revalidatePath('/dashboard/my-tabs');
+  revalidatePath(`/dashboard/tabs/${id}`);
+  redirect('/dashboard/tabs/my-tabs');
+}
+
+export async function unpublishTab(id: string) {
+  try {
+    await sql`
+      UPDATE tabs
+      SET finished = false
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return { message: 'Database Error: Failed.' };
+  }
+
+  revalidatePath('/dashboard/tabs');
+  revalidatePath('/dashboard/my-tabs');
+  revalidatePath(`/dashboard/tabs/${id}`);
+  redirect(`/dashboard/tabs/${id}`);
+}
+
+export async function makeTabPublic(id: string) {
+  try {
+    await sql`
+      UPDATE tabs
+      SET published = true
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return { message: 'Database Error: Failed.' };
+  }
+
+  revalidatePath('/dashboard/tabs');
+  revalidatePath('/dashboard/my-tabs');
+  revalidatePath(`/dashboard/tabs/${id}`);
+  redirect('/dashboard/tabs/admin');
+}
+
+export async function makeTabPrivate(id: string) {
+  try {
+    await sql`
+      UPDATE tabs
+      SET published = false
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return { message: 'Database Error: Failed.' };
+  }
+
+  revalidatePath('/dashboard/tabs');
+  revalidatePath('/dashboard/my-tabs');
+  revalidatePath(`/dashboard/tabs/${id}`);
+  redirect(`/dashboard/tabs/${id}`);
 }
