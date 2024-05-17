@@ -20,20 +20,19 @@ export default async function MyTabsTable({
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
-            {tabs?.map((tab) => (
-              <div
+          {tabs?.map((tab) => (
+              <Link
                 key={tab.id}
-                className="mb-2 w-full rounded-md bg-white p-4"
+                href={`/dashboard/tabs/${tab.id}`}
+                passHref
               >
+              <div className="mb-2 w-full rounded-md bg-white p-4">
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
-                      <Link
-                        href={`/dashboard/tabs/${tab.id}`}
-                        passHref
-                      >
+                      
                         <p>{tab.name}</p>
-                      </Link>
+                      
                     </div>
                     <p className="text-sm text-gray-500">{tab.artist}</p>
                   </div>
@@ -43,13 +42,14 @@ export default async function MyTabsTable({
                     </>
                   )}
                 </div>
-                <div className="flex w-full items-center justify-between pt-4">
+                <div className="flex w-full items-center text-m justify-between pt-4">
                   <div>
                     <p>{tab.favorites_count} likes</p>
-                    <p>{formatDateToLocal(tab.date)}</p>
+                    <p className="text-sm text-gray-500">{formatDateToLocal(tab.date)}</p>
                   </div>
                 </div>
               </div>
+              </Link>
             ))}
           </div>
           <table className="hidden min-w-full text-gray-900 md:table">
@@ -89,20 +89,40 @@ export default async function MyTabsTable({
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {tab.artist}
+                    <Link
+                      href={`/dashboard/tabs/${tab.id}`}
+                      passHref
+                    >
+                      {tab.artist}
+                    </Link>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
+                    <Link
+                      href={`/dashboard/tabs/${tab.id}`}
+                      passHref
+                    >
                     {tab.favorites_count} likes
+                    </Link>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
+                    <Link
+                      href={`/dashboard/tabs/${tab.id}`}
+                      passHref
+                    >
                     {formatDateToLocal(tab.date)}
+                    </Link>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {tab.user_id === currentUser && (
-                      <>
-                        <TabStatus published={tab.published} finished={tab.finished} />
-                      </>
-                    )}
+                    <Link
+                      href={`/dashboard/tabs/${tab.id}`}
+                      passHref
+                    >
+                      {tab.user_id === currentUser && (
+                        <>
+                          <TabStatus published={tab.published} finished={tab.finished} />
+                        </>
+                      )}
+                    </Link>
                   </td>
                 </tr>
               ))}
