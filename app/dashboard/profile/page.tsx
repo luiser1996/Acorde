@@ -31,7 +31,7 @@ export default async function Page() {
   const admin = currentUser.admin;
 
   const userAchievements = await fetchUserAchievements(currentUser);
-  const allAchievements = userAchievements.length === 11;
+  const allAchievements = userAchievements.length === 10;
 
   return (
     <div className="w-full">
