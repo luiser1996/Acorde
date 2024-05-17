@@ -4,7 +4,7 @@ import { User } from '@/app/lib/definitions';
 import { CheckBadgeIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
 import { completeLesson, getAchievements } from '@/app/lib/actions';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { nunito } from '../fonts';
 import Image from 'next/image';
 
@@ -40,16 +40,7 @@ export default function Lesson17Form({
         getAchievements(currentUser);
     };
 
-    useEffect(() => {
-        generateRandomChords();
-    }, []);
-
-    useEffect(() => {
-        setCurrentChord(randomChords[progress]);
-        setCurrentChordDirectory(chordMap[randomChords[progress]]);
-    }, [progress, randomChords, chordMap]);
-
-    function generateRandomChords() {
+    const generateRandomChords = useCallback(() => {
         const shuffledChords = [...chords].sort(() => Math.random() - 0.5);
         const currentChordName = shuffledChords[0];
         const chordDirectoryName = chordMap[currentChordName];
@@ -58,7 +49,7 @@ export default function Lesson17Form({
         setCurrentChord(currentChordName);
         setCurrentChordDirectory(chordDirectoryName);
         setProgress(0);
-    }
+    }, [chordMap]);
 
     function handleAnswer(selectedChord: string) {
         if (selectedChord === currentChord) {
@@ -71,6 +62,15 @@ export default function Lesson17Form({
             generateRandomChords();
         }
     }
+
+    useEffect(() => {
+        generateRandomChords();
+    }, [generateRandomChords]);
+
+    useEffect(() => {
+        setCurrentChord(randomChords[progress]);
+        setCurrentChordDirectory(chordMap[randomChords[progress]]);
+    }, [progress, randomChords, chordMap]);
 
     return (
         <div className="rounded-md shadow-md bg-gray-50 p-4 mt-4 md:p-6">
