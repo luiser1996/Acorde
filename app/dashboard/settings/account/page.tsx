@@ -1,7 +1,7 @@
 import Breadcrumbs from '@/app/ui/dashboard/breadcrumbs';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { LockClosedIcon, ScaleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { LockClosedIcon, ScaleIcon, TrashIcon, AtSymbolIcon } from '@heroicons/react/24/outline';
  
 export const metadata: Metadata = {
   title: 'Account Settings',
@@ -20,6 +20,17 @@ export default async function Page() {
             },
             ]}
         />
+        <div className="mt-4">
+            <Link 
+            key="Change email" 
+            href="/dashboard/settings/account/email" 
+            className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md p-3 text-sm font-medium hover:bg-sky-100 hover:text-orange-500 md:flex-none md:justify-start md:p-2 md:px-3"
+            >
+            <AtSymbolIcon className="w-6" />
+            <p className="hidden md:block">Change email</p>
+            <p className="block md:hidden">Change email</p>
+            </Link>
+        </div>
         <div className="mt-4">
             <Link 
             key="Change password" 
