@@ -62,6 +62,18 @@ const ChangePasswordSchema = z.object({
   }),
 });
 
+const ChangeEmailSchema = z.object({
+  currentPassword: z.string().min(6, {
+    message: 'Please enter your current password for safety.',
+  }),
+  newEmail1: z.string().email({
+    message: 'Please enter a valid email.',
+  }),
+  newEmail2: z.string().email({
+    message: 'Please enter a valid email.',
+  }),
+});
+
 const SafetySchema = z.object({
   currentPassword: z.string().min(6, {
     message: 'Please enter your current password for safety.',
@@ -256,6 +268,52 @@ export async function changePassword(
       }
 
       redirect('/dashboard/settings/account');
+    }
+  }
+}
+
+export async function changeEmail(
+  user: User,
+  prevState: State | undefined,
+  formData: FormData,
+) {
+
+  // Validate form using Zod
+  const validatedFields = ChangeEmailSchema.safeParse({
+    currentPassword: formData.get('currentPassword'),
+    newEmail1: formData.get('newEmail1'),
+    newEmail2: formData.get('newEmail2'),
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return validatedFields.error.errors[0]?.message || 'Missing Fields. Failed to change password.';
+  }
+
+  // Prepare data for insertion into the database
+  const { currentPassword, newEmail1, newEmail2 } = validatedFields.data;
+
+  //Check conditions and change password
+  const currentPasswordsMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!currentPasswordsMatch){
+    return 'Error: Invalid credentials.';
+  }
+  else{
+    if(newEmail1 != newEmail2){
+      return 'Error: New emails does not match.';
+    }
+    else{
+      try {
+        await sql`
+          UPDATE users
+          SET email = ${newEmail1}
+          WHERE id = ${user.id}
+        `;
+      } catch (error) {
+        return { message: 'Database Error: Failed to change email.' };
+      }
+
+      await signOut();
     }
   }
 }
