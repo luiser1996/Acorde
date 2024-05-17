@@ -5,6 +5,7 @@ import { EditProfile } from '@/app/ui/dashboard/buttons';
 import { auth, getUser } from '@/auth';
 import { User } from '@/app/lib/definitions';
 import { fetchUserAchievements } from '@/app/lib/data';
+import { StarIcon } from '@heroicons/react/24/solid';
 
 export const metadata: Metadata = {
   title: 'Profile',
@@ -27,18 +28,21 @@ export default async function Page() {
   const currentUserInfo = await getUser(email);
   const blankUser : User = generateBlankUser();
   const currentUser: User = currentUserInfo || blankUser;
+  const admin = currentUser.admin;
 
   const userAchievements = await fetchUserAchievements(currentUser);
+  const allAchievements = userAchievements.length === 11;
 
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
         <h1 className={`${nunito.className} text-2xl`}>Profile</h1>
       </div>
-      <div className="mr-4 flex justify-end">
+      <div className="mr-4 flex gap-2 justify-end">
         <EditProfile />
       </div>
       <div className="flex flex-col items-center">
+        {allAchievements && <StarIcon className="mb-2 h-8 w-8 text-yellow-500" />}
         {/* Imagen de perfil */}
         <div className="rounded-full overflow-hidden border-2 border-gray-200 w-52 h-52 flex items-center justify-center">
         {currentUser.image_url ? (
@@ -48,7 +52,10 @@ export default async function Page() {
         )}
         </div>
         {/* Nombre de usuario */}
-        <p className="mt-4 font-semibold text-lg">{currentUser.name}</p>
+        <p className="mt-4 font-semibold text-lg flex items-center">
+          {currentUser.name}
+        </p>
+        {admin && <p className="ml-2 text-m font-normal">(admin)</p>}
       
         {/* Línea horizontal */}
         <div className="w-1/2 border-t border-gray-300 mt-8"></div>
