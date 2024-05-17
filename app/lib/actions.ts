@@ -750,42 +750,6 @@ export async function getAchievements(
       throw new Error('Failed to get achievement from lesson 17.');
     }
   }
-
-  try {
-    const completedAchievementsUser = await sql`
-      SELECT * FROM user_achievements
-      WHERE user_id = ${user.id}
-    `;
-
-    if (completedAchievementsUser.rowCount === 10) {
-      try {
-        const completedAchievementSecret = await sql`
-          SELECT * FROM user_achievements
-          WHERE user_id = ${user.id}
-          AND achievement_id = 'b53b2c23-3df0-4d68-8a7a-03b3ded06b4c'
-        `;
-
-        if (completedAchievementSecret.rowCount === 0){
-          try {
-            const data = await sql`
-              INSERT INTO user_achievements (user_id, achievement_id)
-              VALUES (${user.id}, 'b53b2c23-3df0-4d68-8a7a-03b3ded06b4c')
-            `;
-            revalidatePath('/dashboard/profile');
-          } catch (err) {
-            console.error('Database Error:', err);
-            throw new Error('Failed to get secret achievement.');
-          }
-        }
-      } catch (err) {
-        console.error('Database Error:', err);
-        throw new Error('Failed to get secret achievement.');
-      }
-    }
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to get secret achievement.');
-  }
 }
 
 export async function completeLesson(
