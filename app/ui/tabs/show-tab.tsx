@@ -3,6 +3,7 @@ import { nunito } from "../fonts";
 import Image from "next/image";
 import { DeleteTab, GoBackButton, LikeTab, MakePublicTab, PublishTab, UpdateTab } from "./buttons";
 import { User } from "@/app/lib/definitions";
+import YouTubeEmbed from "./youtube-embed";
 
 // Función para mostrar una partitura
 export default async function ShowTab({
@@ -82,7 +83,14 @@ export default async function ShowTab({
                     <p><b>Author:</b> {user.name} on {tab.date && formatDate(tab.date)}</p>
                 </div>
                 <div className="border-t border-gray-300 mt-4 mb-4"></div>
-
+                
+                {/* Video */}
+                <div className="mb-4">
+                    {tab.url && (
+                        <YouTubeEmbed videoId={tab.url} />
+                    )}
+                </div>
+                
                 {/* Chords */}
                 <div className="mb-4">
                     <h2 className={`${nunito.className} font-semibold text-xl`}>Chords</h2>

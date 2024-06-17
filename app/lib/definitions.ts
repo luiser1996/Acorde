@@ -42,6 +42,7 @@ export type Tabs = {
   artist: string;
   user_id: string;
   capo: number | null;
+  url: string;
   date: string;
   published: boolean;
   content: string;
