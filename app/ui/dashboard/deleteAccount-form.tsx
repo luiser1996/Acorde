@@ -8,6 +8,7 @@ import { deleteAccount, State } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
 import { useState } from 'react';
 
+// Formulario para borrar la cuenta del usuario
 export default function DeleteAccountForm({
   currentUser
 }: {

@@ -7,6 +7,7 @@ import { Button } from '@/app/ui/button';
 import { changeEmail, State } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
 
+// Formulario para cambiar el email del usuario
 export default function ChangeEmailForm({
   currentUser
 }: {

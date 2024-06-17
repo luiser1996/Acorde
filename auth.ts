@@ -6,8 +6,7 @@ import { sql } from '@vercel/postgres';
 import type { User } from '@/app/lib/definitions';
 import bcrypt from 'bcrypt';
 
-// Función para obtener el usuario actualmente autenticado
-
+// Función para obtener el usuario actualmente autenticado a través del correo electrónico
 export async function getUser(email: string): Promise<User | undefined> {
   try {
     const user = await sql<User>`SELECT * FROM users WHERE email=${email}`;
@@ -18,6 +17,7 @@ export async function getUser(email: string): Promise<User | undefined> {
   }
 }
 
+// Función para crear un usuario
 export async function createUser(name: string, email: string, password: string) {
   const user = await getUser(email);
   if (!user){
@@ -39,6 +39,7 @@ export async function createUser(name: string, email: string, password: string) 
   }
 }
 
+// Función del módulo NextAuth para autenticar usuarios, loguearse y desloguearse
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [

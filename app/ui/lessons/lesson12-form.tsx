@@ -10,6 +10,7 @@ import Image from 'next/image';
 
 const chords = ['C', 'D', 'E', 'G', 'A'];
 
+// Formulario de la lección
 export default function Lesson12Form({
     currentUser
 }: {

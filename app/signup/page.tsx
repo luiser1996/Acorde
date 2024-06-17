@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Sign up',
 };
  
+// Pagina de sign up
 export default function SignUpPage() {
   return (
     <main className="flex items-center justify-center md:h-screen">

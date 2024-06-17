@@ -6,6 +6,7 @@ import { deleteTab, likeTab, makeTabPrivate, makeTabPublic, publishTab, unlikeTa
 import { User } from '@/app/lib/definitions';
 import { useRouter } from 'next/navigation';
 
+// Botón para llamar a crear una partitura
 export function CreateTab() {
   return (
     <Link
@@ -18,6 +19,7 @@ export function CreateTab() {
   );
 }
 
+// Botón para llamar a pedir publicar una partitura
 export async function PublishTab({
   id,
   finished
@@ -49,6 +51,7 @@ export async function PublishTab({
   }
 }
 
+// Botón para llamar a publicar una partitura
 export async function MakePublicTab({
   id,
   published
@@ -80,6 +83,7 @@ export async function MakePublicTab({
   }
 }
 
+// Botón para llamar a editar una partitura
 export function UpdateTab({ id }: { id: string }) {
   return (
     <Link
@@ -92,6 +96,7 @@ export function UpdateTab({ id }: { id: string }) {
   );
 }
 
+// Botón para llamar a borrar una partitura
 export function DeleteTab({ id }: { id: string }) {
   const deleteTabWithId = deleteTab.bind(null, id);
   return (
@@ -104,6 +109,7 @@ export function DeleteTab({ id }: { id: string }) {
   );
 }
 
+// Botón para dar me gusta a una partitura
 export async function LikeTab({
   id,
   liked,
@@ -137,6 +143,7 @@ export async function LikeTab({
   }
 }
 
+// Botón para volver atrás en función de donde vienes
 export function GoBackButton(){
   const router = useRouter();
 
@@ -150,6 +157,7 @@ export function GoBackButton(){
   );
 }
 
+// Botón para ir a la ruta de tabs privados
 export function MyTabs() {
   return (
     <Link
@@ -161,6 +169,7 @@ export function MyTabs() {
   );
 }
 
+// Botón para ir a la ruta de tabs revisables por admins
 export function Admin() {
   return (
     <Link

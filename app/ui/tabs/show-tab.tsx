@@ -4,6 +4,7 @@ import Image from "next/image";
 import { DeleteTab, GoBackButton, LikeTab, MakePublicTab, PublishTab, UpdateTab } from "./buttons";
 import { User } from "@/app/lib/definitions";
 
+// Función para mostrar una partitura
 export default async function ShowTab({
     id,
     currentUser,

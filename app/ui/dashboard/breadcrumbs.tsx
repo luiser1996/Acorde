@@ -8,6 +8,7 @@ interface Breadcrumb {
   active?: boolean;
 }
 
+// Función para mostrar los Breadcrumbs de navegación
 export default function Breadcrumbs({
   breadcrumbs,
 }: {

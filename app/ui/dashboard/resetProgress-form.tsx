@@ -8,6 +8,7 @@ import { resetProgress, State } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
 import { useState } from 'react';
 
+// Formulario para resetear el progreso del usuario
 export default function ResetProgressForm({
   currentUser
 }: {

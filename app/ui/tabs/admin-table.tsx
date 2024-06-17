@@ -1,9 +1,9 @@
-import { UpdateTab, DeleteTab } from '@/app/ui/tabs/buttons';
 import TabStatus from '@/app/ui/tabs/status';
 import { formatDateToLocal } from '@/app/lib/utils';
-import { fetchFilteredAdminTabs, fetchMyFilteredTabs } from '@/app/lib/data';
+import { fetchFilteredAdminTabs } from '@/app/lib/data';
 import Link from 'next/link';
 
+// Función para mostrar tabla de tabs que necesitan ser administrados en función de que tiene el buscador
 export default async function AdminTabsTable({
   query,
   currentPage,

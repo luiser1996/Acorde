@@ -11,6 +11,7 @@ import { Button } from './button';
 import { useFormState, useFormStatus } from 'react-dom';
 import { authenticate } from '@/app/lib/actions';
 
+// Formulario para iniciar sesión en la aplicación, llama a la función de actions: authenticate
 export default function LoginForm() {
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
  

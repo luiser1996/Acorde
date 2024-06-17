@@ -33,6 +33,7 @@ const links = [
   { name: 'Settings', href: '/dashboard/settings', icon: AdjustmentsHorizontalIcon },
 ];
 
+// Función que muestra los enlaces de navegación del sidenav
 export default function NavLinks() {
   const [showSubMenu, setShowSubMenu] = useState(false);
   const pathname = usePathname();

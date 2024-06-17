@@ -18,6 +18,7 @@ function parseChord(chordString: string): ChordsForm {
     return { tone, semitone };
 }
 
+// Formulario para crear una partitura
 export default function CreateForm({
     chords,
     currentUser,

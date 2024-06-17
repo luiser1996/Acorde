@@ -1,6 +1,7 @@
 import { nunito } from '@/app/ui/fonts';
 import Image from 'next/image';
 
+// Logo de la aplicación en la ruta raiz solamente
 export default function AcordeLogo() {
   return (
     <div

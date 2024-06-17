@@ -1,6 +1,7 @@
 import { CheckIcon, ClockIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
+// Función para manejar la lógica de los tres posibles estados de una partitura
 export default function TabStatus({ published, finished }: { published: boolean; finished: boolean }) {
   const status = finished ? (published ? 'published' : 'pending') : 'unfinished';
 

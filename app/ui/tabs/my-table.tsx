@@ -1,9 +1,9 @@
-import { UpdateTab, DeleteTab } from '@/app/ui/tabs/buttons';
 import TabStatus from '@/app/ui/tabs/status';
 import { formatDateToLocal } from '@/app/lib/utils';
-import { fetchMyFilteredTabs, isTabOwner } from '@/app/lib/data';
+import { fetchMyFilteredTabs } from '@/app/lib/data';
 import Link from 'next/link';
 
+// Función para mostrar tabla de tabs privados en función de que tiene el buscador
 export default async function MyTabsTable({
   query,
   currentPage,
