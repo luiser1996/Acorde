@@ -24,6 +24,7 @@ const TabsSchema = z.object({
   capo: z.number().nullable().refine(value => value === null || Number.isInteger(value), {
     message: 'Capo data should be a non-negative integer or null.',
   }),
+  url: z.string(),
   date: z.string(),
   published: z.boolean(),
   content: z.string(),
@@ -856,6 +857,13 @@ export async function completeLesson(
   }
 }
 
+//Funcion para parsear la id de un video de youtube
+function parseYouTubeUrl(url: string): string {
+  const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|.+\/|watch.*v=)?|youtu\.be\/)([a-zA-Z0-9-_]{11})/;
+  const matches = url.match(regex);
+  return matches ? matches[1] : '';
+}
+
 //Funcion para crear un tab
 export async function createTab(
   formData: FormData,
@@ -867,6 +875,7 @@ export async function createTab(
     name: formData.get('name') as string,
     artist: formData.get('artist') as string,
     capo: formData.get('capo') !== null && formData.get('capo') !== '' ? parseInt(formData.get('capo') as string) : null,
+    url: formData.get('url') as string,
     content: formData.get('content') as string,
   });
  
@@ -879,21 +888,22 @@ export async function createTab(
   }
 
   // Prepare data for insertion into the database
-  const { name, artist, capo, content } = validatedFields.data;
+  const { name, artist, capo, url, content } = validatedFields.data;
   const date = new Date().toISOString().split('T')[0];
+  const youtubeId = parseYouTubeUrl(url);
  
   // Insert data into the database
   try {
     if(capo) {
       await sql`
-        INSERT INTO tabs (name, artist, user_id, capo, date, content)
-        VALUES (${name}, ${artist}, ${user.id}, ${capo}, ${date}, ${content})
+        INSERT INTO tabs (name, artist, user_id, capo, url, date, content)
+        VALUES (${name}, ${artist}, ${user.id}, ${capo}, ${youtubeId}, ${date}, ${content})
       `;
     }
     else {
       await sql`
-        INSERT INTO tabs (name, artist, user_id, date, content)
-        VALUES (${name}, ${artist}, ${user.id}, ${date}, ${content})
+        INSERT INTO tabs (name, artist, user_id, url, date, content)
+        VALUES (${name}, ${artist}, ${user.id}, ${youtubeId}, ${date}, ${content})
       `;
     }
   } catch (error) {
@@ -946,6 +956,7 @@ export async function updateTab(
     name: formData.get('name') as string,
     artist: formData.get('artist') as string,
     capo: formData.get('capo') !== null && formData.get('capo') !== '' ? parseInt(formData.get('capo') as string) : null,
+    url: formData.get('url') as string,
     content: formData.get('content') as string,
   });
  
@@ -958,22 +969,23 @@ export async function updateTab(
   }
 
   // Prepare data for insertion into the database
-  const { name, artist, capo, content } = validatedFields.data;
+  const { name, artist, capo, url, content } = validatedFields.data;
   const date = new Date().toISOString().split('T')[0];
+  const youtubeId = parseYouTubeUrl(url);
  
   // Insert data into the database
   try {
     if (capo) {
       await sql`
         UPDATE tabs
-        SET name = ${name}, artist = ${artist}, capo = ${capo}, date = ${date}, content = ${content}
+        SET name = ${name}, artist = ${artist}, capo = ${capo}, url=${youtubeId}, date = ${date}, content = ${content}
         WHERE id = ${id}
       `;
     }
     else {
       await sql`
         UPDATE tabs
-        SET name = ${name}, artist = ${artist}, capo = null, date = ${date}, content = ${content}
+        SET name = ${name}, artist = ${artist}, capo = null, url=${youtubeId}, date = ${date}, content = ${content}
         WHERE id = ${id}
       `;
     }

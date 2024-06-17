@@ -6,6 +6,7 @@ import {
     UserCircleIcon,
     MinusCircleIcon,
     ExclamationCircleIcon,
+    VideoCameraIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
 import { State, updateTab } from '@/app/lib/actions';
@@ -32,6 +33,7 @@ export default function EditForm({
         name: tab.name || '',
         artist: tab.artist || '',
         capo: tab.capo || '',
+        url: tab.url || '',
         content: tab.content || '',
     });
 
@@ -40,6 +42,7 @@ export default function EditForm({
             name: tab.name || '',
             artist: tab.artist || '',
             capo: tab.capo || '',
+            url: tab.url || '',
             content: tab.content || '',
         });
     }, [tab]);
@@ -143,6 +146,27 @@ export default function EditForm({
                                 placeholder="Enter capo position"
                             />
                             <MinusCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Url */}
+                <div className="mb-4">
+                    <label htmlFor="url" className="mb-2 block text-sm font-medium">
+                        Youtube Url
+                    </label>
+                    <div className="relative mt-2 rounded-md">
+                        <div className="relative">
+                            <input
+                                id="url"
+                                name="url"
+                                type="text"
+                                value={formData.url}
+                                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+                                placeholder="Enter Youtube Url"
+                            />
+                            <VideoCameraIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
                         </div>
                     </div>
                 </div>
