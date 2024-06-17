@@ -12,6 +12,7 @@ import { Button } from './button';
 import { useFormState, useFormStatus } from 'react-dom';
 import { newUser } from '@/app/lib/actions';
 
+// Formulario de registro de un usuario nuevo, llama a la función de actions: newUser
 export default function SignUpForm() {
   const [errorMessage, dispatch] = useFormState(newUser, undefined);
  

@@ -11,6 +11,7 @@ import { ChordsForm, User } from '@/app/lib/definitions';
 import { UTApi } from "uploadthing/server"
 import { fetchChordId, fetchLessons, fetchTabId, userTabCount, isLessonCompleted, userPublicTabs } from './data';
 
+//Validación de datos de tabs
 const TabsSchema = z.object({
   id: z.string(),
   name: z.string().nonempty({
@@ -28,8 +29,10 @@ const TabsSchema = z.object({
   content: z.string(),
 });
 
+//Parseo de datos de tabs
 const CreateTabParse = TabsSchema.omit({ id:true, user_id:true, date:true, published:true });
  
+//Validación de datos de sign up
 const SignUpSchema = z.object({
   name: z.string().nonempty({
     message: 'Please enter your name.',
@@ -42,14 +45,17 @@ const SignUpSchema = z.object({
   }),
 });
 
+//Validación de datos de perfil
 const FormUpdateProfileSchema = z.object({
   name: z.string().nonempty({
     message: 'Please enter your name.',
   }),
 });
 
+//Parseo de datos de perfil
 const UpdateUser = FormUpdateProfileSchema.omit({});
 
+//Validación de datos de cambiar contraseña
 const ChangePasswordSchema = z.object({
   currentPassword: z.string().min(6, {
     message: 'Please enter your current password for safety.',
@@ -62,6 +68,7 @@ const ChangePasswordSchema = z.object({
   }),
 });
 
+//Validación de datos de cambiar email
 const ChangeEmailSchema = z.object({
   currentPassword: z.string().min(6, {
     message: 'Please enter your current password for safety.',
@@ -74,6 +81,7 @@ const ChangeEmailSchema = z.object({
   }),
 });
 
+//Validación de contraseña actual
 const SafetySchema = z.object({
   currentPassword: z.string().min(6, {
     message: 'Please enter your current password for safety.',
@@ -89,6 +97,7 @@ export type State = {
   message?: string | null;
 };
 
+//Función para autenticar un usuario
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData,
@@ -108,6 +117,7 @@ export async function authenticate(
   }
 }
 
+//Función para registrar un usuario
 export async function newUser(
   prevState: string | undefined,
   formData: FormData,
@@ -150,6 +160,7 @@ export async function newUser(
   }
 }
 
+//Función para actualizar perfil de usuario
 export async function updateProfile(
   user: User,
   image_url: string,
@@ -225,6 +236,7 @@ export async function updateProfile(
   }
 }
 
+//Funcion para cambiar la contraseña del usuario
 export async function changePassword(
   user: User,
   prevState: State | undefined,
@@ -272,6 +284,7 @@ export async function changePassword(
   }
 }
 
+//Funcion para cambiar el email del usuario
 export async function changeEmail(
   user: User,
   prevState: State | undefined,
@@ -318,6 +331,7 @@ export async function changeEmail(
   }
 }
 
+//Funcion para resetear el progreso del usuario
 export async function resetProgress(
   user: User,
   prevState: State | undefined,
@@ -373,6 +387,7 @@ export async function resetProgress(
   }
 }
 
+//Funcion para borrar la cuenta del usuario
 export async function deleteAccount(
   user: User,
   prevState: State | undefined,
@@ -493,6 +508,7 @@ export async function deleteAccount(
   }
 }
 
+//Funcion para recibir logros
 export async function getAchievements(
   user: User,
 ){
@@ -810,6 +826,7 @@ export async function getAchievements(
   }
 }
 
+//Funcion para completar una leccion
 export async function completeLesson(
   user: User,
   lesson_id: string,
@@ -828,18 +845,18 @@ export async function completeLesson(
           VALUES (${user.id}, ${lesson_id})
         `;
         revalidatePath('/dashboard/learn');
-        revalidatePath('/dashboard/learn/beginner-guitarist');
       } catch (err) {
         console.error('Database Error:', err);
-        throw new Error('Failed to complete lesson 1.');
+        throw new Error('Failed to complete lesson.');
       }
     }
   } catch (err) {
     console.error('Database Error:', err);
-    throw new Error('Failed to complete lesson 1.');
+    throw new Error('Failed to complete lesson.');
   }
 }
 
+//Funcion para crear un tab
 export async function createTab(
   formData: FormData,
   user: User,
@@ -864,7 +881,6 @@ export async function createTab(
   // Prepare data for insertion into the database
   const { name, artist, capo, content } = validatedFields.data;
   const date = new Date().toISOString().split('T')[0];
-  const user_tabs = await userTabCount(user.id);
  
   // Insert data into the database
   try {
@@ -907,7 +923,9 @@ export async function createTab(
     }
   }
 
-  if (newTabId && (user_tabs > 0)){
+  const completedLesson9 = await isLessonCompleted(user, 'c71d619a-dbe0-4cef-b992-0fda31ad267b');
+
+  if (newTabId && !completedLesson9){
     completeLesson(user, 'c71d619a-dbe0-4cef-b992-0fda31ad267b');
     getAchievements(user);
   }
@@ -917,6 +935,7 @@ export async function createTab(
   redirect(`/dashboard/tabs/${newTabId}`);
 }
 
+//Funcion para actualizar un tab
 export async function updateTab(
   formData: FormData,
   id: string,
@@ -1001,6 +1020,7 @@ export async function updateTab(
   redirect(`/dashboard/tabs/${id}`);
 }
 
+//Funcion para borrar un tab
 export async function deleteTab(id: string) {
   try {
     await sql`
@@ -1025,6 +1045,7 @@ export async function deleteTab(id: string) {
   redirect('/dashboard/tabs/my-tabs');
 }
 
+//Funcion para dar like a un tab
 export async function likeTab(id: string, user_id: string) {
   try {
     await sql`
@@ -1039,6 +1060,7 @@ export async function likeTab(id: string, user_id: string) {
   revalidatePath(`/dashboard/tabs/${id}`);
 }
 
+//Funcion para quitar like de un tab
 export async function unlikeTab(id: string, user_id: string) {
   try {
     await sql`
@@ -1053,6 +1075,7 @@ export async function unlikeTab(id: string, user_id: string) {
   revalidatePath(`/dashboard/tabs/${id}`);
 }
 
+//Funcion para terminar un tab
 export async function publishTab(id: string) {
   try {
     await sql`
@@ -1070,6 +1093,7 @@ export async function publishTab(id: string) {
   redirect('/dashboard/tabs/my-tabs');
 }
 
+//Funcion para marcar como no terminado un tab
 export async function unpublishTab(id: string) {
   try {
     await sql`
@@ -1087,6 +1111,7 @@ export async function unpublishTab(id: string) {
   redirect(`/dashboard/tabs/${id}`);
 }
 
+//Funcion para publicar un tab
 export async function makeTabPublic(id: string) {
   try {
     await sql`
@@ -1104,6 +1129,7 @@ export async function makeTabPublic(id: string) {
   redirect('/dashboard/tabs/admin');
 }
 
+//Funcion para despublicar un tab
 export async function makeTabPrivate(id: string) {
   try {
     await sql`

@@ -6,8 +6,8 @@ import { Button } from '@/app/ui/button';
 import { completeLesson, getAchievements } from '@/app/lib/actions';
 import { useState } from 'react';
 import { nunito } from '../fonts';
-import Link from 'next/link';
 
+// Formulario de la lección
 export default function Lesson14Form({
   currentUser
 }: {

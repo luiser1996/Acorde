@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { UploadButton } from "@/app/api/uploadthing/uploadthing";
 import Image from 'next/image';
 
+// Formulario para editar la información del usuario
 export default function EditProfileForm({
   currentUser,
   currentUrl

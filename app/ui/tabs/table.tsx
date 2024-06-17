@@ -2,6 +2,7 @@ import { formatDateToLocal } from '@/app/lib/utils';
 import { fetchFilteredTabs } from '@/app/lib/data';
 import Link from 'next/link';
 
+// Función para mostrar tabla de tabs públicos en función de que tiene el buscador
 export default async function TabsTable({
   query,
   currentPage,

@@ -11,13 +11,14 @@ import { Button } from '@/app/ui/button';
 import { State, updateTab } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
 import { useEffect, useState } from 'react';
-import { Chords, ChordsForm, Tabs, User } from '@/app/lib/definitions';
+import { Chords, ChordsForm, Tabs } from '@/app/lib/definitions';
 
 function parseChord(chordString: string): ChordsForm {
     const [tone, semitone] = chordString.split(',');
     return { tone, semitone };
 }
 
+// Formulario para editar una partitura
 export default function EditForm({
     tab,
     chords,

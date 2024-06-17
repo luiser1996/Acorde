@@ -10,18 +10,19 @@ export const authConfig = {
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
       const isInDashboard = nextUrl.pathname === '/dashboard';
 
+      // Lógica de redirección de rutas en función de si estas logueado o en dashboard
       if (isOnDashboard) {
         if (isLoggedIn){
           if(isInDashboard) {
             return Response.redirect(new URL('/dashboard/learn', nextUrl));
-          }
+          } // Redirecciona a learn si se intenta buscar la ruta dashboard 
           else {
             return true;
           }
         }
         else {
           return false;
-        } // Redirect unauthenticated users to login page
+        } // Redirecciona usuarios sin sesión iniciada al login
       } else if (isLoggedIn) {
         return Response.redirect(new URL('/dashboard/learn', nextUrl));
       }

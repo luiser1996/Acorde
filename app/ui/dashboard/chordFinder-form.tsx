@@ -4,6 +4,7 @@ import { Chords } from '@/app/lib/definitions';
 import { useState } from 'react';
 import Image from 'next/image';
 
+// Función para seleccionar un acorde y mostrarlo
 export default function SelectChordForm({
   chords
 }: {
@@ -16,7 +17,7 @@ export default function SelectChordForm({
     const [selectedSemitone, setSelectedSemitone] = useState('');
     const [selectedChord, setSelectedChord] = useState<Chords | null>(null);
 
-    // Función para manejar el cambio en el tono y el semitono
+    // Funciones para manejar el cambio en el tono y el semitono
     const handleToneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedTone(e.target.value);
         updateSelectedChord(e.target.value, selectedSemitone);

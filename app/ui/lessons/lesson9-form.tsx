@@ -3,6 +3,7 @@
 import { User } from '@/app/lib/definitions';
 import { nunito } from '../fonts';
 
+// Formulario de la lección
 export default function Lesson9({
   currentUser
 }: {

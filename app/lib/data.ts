@@ -12,6 +12,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 
 const ITEMS_PER_PAGE = 6;
 
+// Función que saca de BD los tabs públicos en función de criterios de búsqueda
 export async function fetchFilteredTabs(
   query: string,
   currentPage: number,
@@ -50,6 +51,7 @@ export async function fetchFilteredTabs(
   }
 }
 
+// Función que saca de BD los tabs revisables por admins en función de criterios de búsqueda
 export async function fetchFilteredAdminTabs(
   query: string,
   currentPage: number,
@@ -91,6 +93,7 @@ export async function fetchFilteredAdminTabs(
   }
 }
 
+// Función que saca de BD los tabs privados en función de criterios de búsqueda
 export async function fetchMyFilteredTabs(
   query: string,
   currentPage: number,
@@ -133,6 +136,7 @@ export async function fetchMyFilteredTabs(
   }
 }
 
+// Función que muestra cuantos tabs tiene un usuario
 export async function userTabCount(id: string) : Promise<number> {
   noStore();
 
@@ -150,6 +154,7 @@ export async function userTabCount(id: string) : Promise<number> {
   }
 }
 
+// Función que muestra si un tab esta terminado o no
 export async function isTabFinished(id: string) : Promise<boolean> {
   noStore();
 
@@ -167,6 +172,7 @@ export async function isTabFinished(id: string) : Promise<boolean> {
   }
 }
 
+// Función que muestra si un tab es público o no
 export async function isTabPublic(id: string) : Promise<boolean> {
   noStore();
 
@@ -184,6 +190,7 @@ export async function isTabPublic(id: string) : Promise<boolean> {
   }
 }
 
+// Función que muestra si un usuario es propietario o no de un tab
 export async function isTabOwner(id: string, user_id: string) : Promise<boolean> {
   noStore();
 
@@ -201,6 +208,7 @@ export async function isTabOwner(id: string, user_id: string) : Promise<boolean>
   }
 }
 
+// Función que muestra los tabs públicos de un usuario
 export async function userPublicTabs(user_id: string) {
   noStore();
 
@@ -218,6 +226,7 @@ export async function userPublicTabs(user_id: string) {
   }
 }
 
+// Función que muestra si un usuario ha dado me gusta a un tab
 export async function isTabLikedByUser(id: string, user_id: string) : Promise<boolean> {
   noStore();
 
@@ -235,6 +244,7 @@ export async function isTabLikedByUser(id: string, user_id: string) : Promise<bo
   }
 }
 
+// Función que muestra el numero de tabs públicos en función de criterios de búsqueda
 export async function fetchTabsPages(query: string) {
   noStore();
   try {
@@ -254,6 +264,7 @@ export async function fetchTabsPages(query: string) {
   }
 }
 
+// Función que muestra el numero de tabs privados en función de criterios de búsqueda
 export async function fetchMyTabsPages(query: string, userId: string) {
   noStore();
   try {
@@ -275,6 +286,7 @@ export async function fetchMyTabsPages(query: string, userId: string) {
   }
 }
 
+// Función que muestra el numero de tabs revisables por admins en función de criterios de búsqueda
 export async function fetchAdminTabsPages(query: string) {
   noStore();
   try {
@@ -295,6 +307,7 @@ export async function fetchAdminTabsPages(query: string) {
   }
 }
 
+// Función que muestra la información de un usuario
 export async function getUser(email: string) {
   noStore();
   try {
@@ -306,6 +319,7 @@ export async function getUser(email: string) {
   }
 }
 
+// Función que muestra los acordes que hay en la BD
 export async function fetchChords() {
   noStore();
   try {
@@ -323,6 +337,7 @@ export async function fetchChords() {
   }
 }
 
+// Función que muestra el id de un acorde
 export async function fetchChordId(tone: string, semitone: string): Promise<string> {
   try {
     const data = await sql`
@@ -338,6 +353,7 @@ export async function fetchChordId(tone: string, semitone: string): Promise<stri
   }
 }
 
+// Función que saca de BD los acordes de una canción
 export async function fetchTabChords(id: string): Promise<Chords[]> {
   try {
     const chordsData = await sql<Chords>`
@@ -354,6 +370,7 @@ export async function fetchTabChords(id: string): Promise<Chords[]> {
   }
 }
 
+// Función que muestra el id de un tab en función de su contenido
 export async function fetchTabId(name: string, artist: string, user_id: string): Promise<string> {
   try {
     const data = await sql`
@@ -369,6 +386,7 @@ export async function fetchTabId(name: string, artist: string, user_id: string):
   }
 }
 
+// Función que saca de BD la información de un tab en función de su id
 export async function fetchTabById(id: string): Promise<Tabs> {
   try {
     const data = await sql`
@@ -384,6 +402,7 @@ export async function fetchTabById(id: string): Promise<Tabs> {
   }
 }
 
+// Función que saca de BD la lista de lecciones
 export async function fetchLessons() {
   noStore();
   try {
@@ -401,6 +420,7 @@ export async function fetchLessons() {
   }
 }
 
+// Función que muestra si una leccion esta completada o no por un usuario
 export async function isLessonCompleted(
   user: User,
   lesson_id: string,
@@ -421,6 +441,7 @@ export async function isLessonCompleted(
   }
 }
 
+// Función que devuelve los logros de un usuario
 export async function fetchUserAchievements(
   user: User,
 ) {
@@ -441,6 +462,7 @@ export async function fetchUserAchievements(
   }
 }
 
+// Función que muestra la información de un usuario en función de su id
 export async function fetchUserById(
   id: string,
 ): Promise<User> {

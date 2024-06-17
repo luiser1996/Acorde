@@ -7,6 +7,7 @@ import { Button } from '@/app/ui/button';
 import { changePassword, State } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
 
+// Formulario para cambiar la contraseña del usuario
 export default function ChangePasswordForm({
   currentUser
 }: {

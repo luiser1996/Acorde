@@ -7,6 +7,7 @@ import { completeLesson, getAchievements } from '@/app/lib/actions';
 import { useState } from 'react';
 import { nunito } from '../fonts';
 
+// Formulario de la lección
 export default function Lesson3Form({
   currentUser
 }: {

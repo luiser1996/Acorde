@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Login',
 };
  
+// Pagina de log in
 export default function LoginPage() {
   return (
     <main className="flex items-center justify-center md:h-screen">

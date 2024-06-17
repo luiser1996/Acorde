@@ -1,6 +1,7 @@
 import { nunito } from '@/app/ui/fonts';
 import Image from 'next/image';
 
+// Función reutilizable para mostrar el logo de la aplicación
 export default function AcordeLogo() {
   return (
     <div

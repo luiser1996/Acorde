@@ -1,10 +1,4 @@
-export const formatCurrency = (amount: number) => {
-  return (amount / 100).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  });
-};
-
+// Función para formatear la fecha
 export const formatDateToLocal = (
   dateStr: string,
   locale: string = 'en-US',
@@ -19,6 +13,7 @@ export const formatDateToLocal = (
   return formatter.format(date);
 };
 
+// Función para generar la paginación de tablas
 export const generatePagination = (currentPage: number, totalPages: number) => {
   // If the total number of pages is 7 or less,
   // display all pages without any ellipsis.
