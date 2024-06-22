@@ -30,25 +30,25 @@ export default function Page() {
               <span className="font-semibold">Sign up</span> <ArrowRightIcon className="w-5 md:w-6" />
             </Link>
           </div>
-        </div>
-        {/* This is a multi-line comment 
+        </div> 
         <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
           <Image
-            src="/hero-desktop.png"
-            width={1000}
-            height={760}
+            src="/inicio.gif"
+            width={425}
+            height={100}
             className="hidden md:block"
-            alt="Screenshots of the dashboard project showing desktop version"
+            alt="Gif de inicio"
+            unoptimized={true}
           />
           <Image
-            src="/hero-mobile.png"
-            width={560}
-            height={620}
+            src="/inicio.gif"
+            width={250}
+            height={100}
             className="block md:hidden"
-            alt="Screenshots of the dashboard project showing mobile version"
+            alt="Gif de inicio"
+            unoptimized={true}
           />
         </div>
-        */}
       </div>
     </main>
   );
