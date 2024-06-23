@@ -66,12 +66,21 @@ export default async function Page() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
         {userAchievements.map((achievement) => (
           <div key={achievement.id} className="bg-white p-2 rounded-lg flex items-center justify-center flex-col shadow-md">
-            <Image
-              src="/medalla.png"
+            {achievement.image_url ? (
+              <Image
+              src={achievement.image_url}
               width={120}
               height={120}
               alt="Achievement image."
-            />
+              />
+            ): (
+              <Image
+                src="/medalla.png"
+                width={120}
+                height={120}
+                alt="Achievement image."
+              />
+            )}
             <div className="text-center">
               <h2 className="text-base font-semibold mt-2">{achievement.name}</h2>
               <p className="text-xs text-gray-600">{achievement.description}</p>

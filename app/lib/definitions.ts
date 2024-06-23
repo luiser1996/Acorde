@@ -3,6 +3,7 @@ export type Achievement = {
   id: string;
   name: string;
   description?: string;
+  image_url?: string;
 };
 
 export type User = {

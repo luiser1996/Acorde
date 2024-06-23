@@ -448,7 +448,7 @@ export async function fetchUserAchievements(
   noStore();
   try {
     const data = await sql<Achievement>`
-      SELECT a.id, a.name, a.description
+      SELECT a.id, a.name, a.description, a.image_url
       FROM achievements a
       JOIN user_achievements ua ON a.id = ua.achievement_id
       WHERE ua.user_id = ${user.id};
