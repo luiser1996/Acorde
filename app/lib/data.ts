@@ -147,7 +147,7 @@ export async function userTabCount(id: string) : Promise<number> {
       WHERE user_id=${id}
     `;
 
-    return data.rowCount;
+    return data.rows.length;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch data.');
@@ -201,7 +201,7 @@ export async function isTabOwner(id: string, user_id: string) : Promise<boolean>
       WHERE id=${id} AND user_id=${user_id}
     `;
     
-    return data.rowCount > 0;
+    return data.rows.length > 0;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch data.');
@@ -237,7 +237,7 @@ export async function isTabLikedByUser(id: string, user_id: string) : Promise<bo
       WHERE tab_id=${id} AND user_id=${user_id}
     `;
 
-    return data.rowCount > 0;
+    return data.rows.length > 0;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch data.');

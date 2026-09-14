@@ -12,7 +12,7 @@ export type User = {
   email: string;
   password: string;
   image_url?: string;
-  admin?: string;
+  admin?: boolean;
 };
 
 export type UserAchievements = {
