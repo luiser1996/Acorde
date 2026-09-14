@@ -18,8 +18,8 @@ function generateBlankUser(): User {
     };
 }
  
-export default async function Page({ params }: { params: { id: string } }) {
-    const { id } = params;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     const chords = await fetchChords();
     const tab = await fetchTabById(id);
     const chosenChords = await fetchTabChords(id);

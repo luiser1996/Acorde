@@ -26,13 +26,14 @@ function generateBlankUser(): User {
 export default async function Page({
     searchParams,
 }: {
-    searchParams?: {
+    searchParams?: Promise<{
       query?: string;
       page?: string;
-    };
+    }>;
 }) {
-  const query = searchParams?.query || '';
-  const currentPage = Number(searchParams?.page) || 1;
+  const filters = await searchParams;
+    const query = filters?.query || '';
+  const currentPage = Number(filters?.page) || 1;
 
   const totalPages = await fetchTabsPages(query);
 

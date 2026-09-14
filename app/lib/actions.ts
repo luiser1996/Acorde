@@ -1,6 +1,7 @@
 'use server';
 
 import { z } from 'zod';
+import { requireUser, requireTabOwner, requireAdmin } from './authorization';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -169,6 +170,7 @@ export async function updateProfile(
   prevState: State | undefined,
   formData: FormData,
 ) {
+  user = await requireUser();
   const validatedFields = UpdateUser.safeParse({
     name: formData.get('name'),
   });
@@ -243,6 +245,7 @@ export async function changePassword(
   prevState: State | undefined,
   formData: FormData,
 ) {
+  user = await requireUser();
 
   // Validate form using Zod
   const validatedFields = ChangePasswordSchema.safeParse({
@@ -291,6 +294,7 @@ export async function changeEmail(
   prevState: State | undefined,
   formData: FormData,
 ) {
+  user = await requireUser();
 
   // Validate form using Zod
   const validatedFields = ChangeEmailSchema.safeParse({
@@ -338,6 +342,7 @@ export async function resetProgress(
   prevState: State | undefined,
   formData: FormData,
 ) {
+  user = await requireUser();
 
   // Validate form using Zod
   const validatedFields = SafetySchema.safeParse({
@@ -394,6 +399,7 @@ export async function deleteAccount(
   prevState: State | undefined,
   formData: FormData,
 ) {
+  user = await requireUser();
 
   // Validate form using Zod
   const validatedFields = SafetySchema.safeParse({
@@ -513,6 +519,7 @@ export async function deleteAccount(
 export async function getAchievements(
   user: User,
 ){
+  user = await requireUser();
   const lessons = await fetchLessons();
 
   const lessons1 = lessons.slice(0, 5);
@@ -832,6 +839,7 @@ export async function completeLesson(
   user: User,
   lesson_id: string,
 ) {
+  user = await requireUser();
   try {
     const completedLesson = await sql`
       SELECT * FROM user_lessons
@@ -870,6 +878,7 @@ export async function createTab(
   user: User,
   selectedChords: ChordsForm[]
 ) {
+  user = await requireUser();
   // Validate form using Zod
   const validatedFields = CreateTabParse.safeParse({
     name: formData.get('name') as string,
@@ -951,6 +960,7 @@ export async function updateTab(
   id: string,
   selectedChords: ChordsForm[]
 ) {
+  await requireTabOwner(id);
   // Validate form using Zod
   const validatedFields = CreateTabParse.safeParse({
     name: formData.get('name') as string,
@@ -1034,6 +1044,7 @@ export async function updateTab(
 
 //Funcion para borrar un tab
 export async function deleteTab(id: string) {
+  await requireTabOwner(id);
   try {
     await sql`
       DELETE FROM tab_chords 
@@ -1059,6 +1070,7 @@ export async function deleteTab(id: string) {
 
 //Funcion para dar like a un tab
 export async function likeTab(id: string, user_id: string) {
+  user_id = (await requireUser()).id;
   try {
     await sql`
       INSERT INTO user_tabs (user_id, tab_id)
@@ -1074,6 +1086,7 @@ export async function likeTab(id: string, user_id: string) {
 
 //Funcion para quitar like de un tab
 export async function unlikeTab(id: string, user_id: string) {
+  user_id = (await requireUser()).id;
   try {
     await sql`
       DELETE FROM user_tabs 
@@ -1089,6 +1102,7 @@ export async function unlikeTab(id: string, user_id: string) {
 
 //Funcion para terminar un tab
 export async function publishTab(id: string) {
+  await requireTabOwner(id);
   try {
     await sql`
       UPDATE tabs
@@ -1107,6 +1121,7 @@ export async function publishTab(id: string) {
 
 //Funcion para marcar como no terminado un tab
 export async function unpublishTab(id: string) {
+  await requireTabOwner(id);
   try {
     await sql`
       UPDATE tabs
@@ -1125,6 +1140,7 @@ export async function unpublishTab(id: string) {
 
 //Funcion para publicar un tab
 export async function makeTabPublic(id: string) {
+  await requireAdmin();
   try {
     await sql`
       UPDATE tabs
@@ -1143,6 +1159,7 @@ export async function makeTabPublic(id: string) {
 
 //Funcion para despublicar un tab
 export async function makeTabPrivate(id: string) {
+  await requireAdmin();
   try {
     await sql`
       UPDATE tabs
